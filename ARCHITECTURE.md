@@ -12,7 +12,9 @@ Este proyecto:
 - compila cada sección con las variables de producción;
 - ensambla la carpeta `dist/`;
 - la sirve en local imitando a Cloudflare Pages, para verificarla;
-- la sube con `wrangler pages deploy`.
+- la sube con `wrangler deploy` como "static assets" de un Worker (`wrangler.jsonc`).
+
+> **Nota (17/11/2026):** Cloudflare ha integrado Pages en Workers. `wrangler pages project create` ya crea un Worker con recursos estáticos, así que el sitio se publica como Worker `ododex` con `assets.directory = "dist"`, `html_handling = "auto-trailing-slash"` y `not_found_handling = "404-page"`, que reproducen las reglas de la sección siguiente. Los límites y `_headers` funcionan igual. Donde este documento dice "Pages", léase "recursos estáticos de Workers".
 
 Fuera de alcance:
 
@@ -66,7 +68,7 @@ JavaScript ESM (`.mjs`) con JSDoc, sin TypeScript ni dependencias de ejecución.
     "build": "node scripts/construir.mjs",
     "build:sin-compilar": "node scripts/construir.mjs --sin-compilar",
     "preview": "node scripts/previsualizar.mjs",
-    "deploy": "wrangler pages deploy dist --project-name ododex",
+    "deploy": "wrangler deploy",
     "test": "node --test \"tests/**/*.test.mjs\""
   },
   "devDependencies": { "wrangler": "4.157.0" }

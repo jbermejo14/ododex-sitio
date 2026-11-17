@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Sitio estático servido con los "static assets" de Cloudflare Workers
+  // (Cloudflare ha integrado Pages en Workers; `wrangler pages` crea ya un Worker).
+  "name": "ododex",
+  "compatibility_date": "2026-11-03",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist",
+    // /ruta sirve ruta.html o ruta/index.html, como en Pages.
+    "html_handling": "auto-trailing-slash",
+    // Sirve la 404.html más cercana (la de la sección o la de la raíz) con estado 404.
+    "not_found_handling": "404-page"
+  }
+}

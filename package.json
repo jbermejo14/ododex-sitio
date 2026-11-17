@@ -6,7 +6,7 @@
     "build": "node scripts/construir.mjs",
     "build:sin-compilar": "node scripts/construir.mjs --sin-compilar",
     "preview": "node scripts/previsualizar.mjs",
-    "deploy": "wrangler pages deploy dist --project-name ododex",
+    "deploy": "wrangler deploy",
     "test": "node --test \"tests/**/*.test.mjs\""
   },
   "devDependencies": {

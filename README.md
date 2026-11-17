@@ -1,6 +1,6 @@
 # ododex-sitio
 
-Publica `ododex.com` en Cloudflare Pages como un único sitio estático:
+Publica `ododex.com` en Cloudflare como un único sitio estático (Worker `ododex` con recursos estáticos; Cloudflare ha integrado Pages en Workers):
 
 - **Raíz** (`/`): portada de la red Ododex, `robots.txt`, `ads.txt`, `404.html` y `_headers`.
 - **Secciones**: la exportación estática de cada web Next.js hermana, bajo su ruta base.
@@ -69,7 +69,7 @@ Sirve `dist/` en `http://127.0.0.1:8788` (variable `PORT` para cambiarlo), con l
 npm run deploy
 ```
 
-Sube `dist/` al proyecto `ododex` de Cloudflare Pages con `wrangler` (versión fijada en `package.json`). La primera vez abre el navegador para iniciar sesión en Cloudflare.
+Sube `dist/` al Worker `ododex` con `wrangler deploy` (versión fijada en `package.json`; configuración en `wrangler.jsonc`). Solo sube los ficheros que han cambiado. La primera vez hay que iniciar sesión con `npx wrangler login`.
 
 ### Pruebas
 
@@ -85,9 +85,9 @@ Sin red. Cubren el ensamblado (secciones, `robots.txt`, `ads.txt`, `_headers`, p
 
 1. **Cuenta y dominio.** Crea una cuenta gratuita en Cloudflare. En "Add a site" añade `ododex.com` con el plan Free. Cloudflare te dará dos *nameservers*.
 2. **DNS en Arsys.** En el panel de Arsys, en la gestión del dominio `ododex.com`, cambia los servidores DNS por los dos de Cloudflare. Puede tardar de minutos a 24 horas. Cloudflare avisa por correo cuando el dominio está activo.
-3. **Proyecto de Pages.** En Cloudflare: "Workers & Pages" → "Create" → "Pages" → "Upload assets". Nombre del proyecto: `ododex`. No subas nada desde el panel: admite pocos ficheros y el sitio tiene unos 7 400. Sal y usa `npm run deploy`.
-4. **Primer despliegue.** Aquí: `npm run build` (con `ADSENSE_CLIENT` si ya tienes cuenta de AdSense) y `npm run deploy`. El sitio queda en `https://ododex.pages.dev`.
-5. **Dominio personalizado.** En el proyecto `ododex` → "Custom domains", añade `ododex.com` y después `www.ododex.com`. Cloudflare crea los registros DNS.
+3. **Primer despliegue (hecho el 17/11/2026).** `npx wrangler login`, `npm run build` (con `ADSENSE_CLIENT` si ya tienes AdSense) y `npm run deploy`. No hace falta crear nada en el panel: `wrangler deploy` crea el Worker `ododex` y lo publica en una URL `*.workers.dev` de tu cuenta.
+4. **Sin uso.** (Antes era el proyecto de Pages; ya no aplica.)
+5. **Dominio personalizado.** Cuando el dominio esté activo en Cloudflare: "Workers & Pages" → `ododex` → "Settings" → "Domains & Routes" → "Add" → "Custom domain": `ododex.com` y después `www.ododex.com`. Cloudflare crea los registros DNS. Después puedes desactivar ahí mismo la URL `*.workers.dev`, que incluye el nombre de tu cuenta.
 6. **Redirección de www.** En el dominio `ododex.com` → "Rules" → "Redirect Rules", crea una regla: si el host es `www.ododex.com`, redirige con 301 a `https://ododex.com` conservando la ruta y la consulta.
 7. **Comprobación tras el primer despliegue:**
    - `https://ododex.com/es/multas` carga sin redirección a `/es/multas/` (`curl -I`, estado 200).
