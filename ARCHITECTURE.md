@@ -264,3 +264,105 @@ Los módulos 1 y 2 no dependen entre sí.
   - `/es/multas` y `/es/impuestos` cargan con estilos e imágenes;
   - la navegación interna funciona;
   - una ruta inexistente bajo `/es/multas/` devuelve la 404 de multas, y una ruta inexistente en la raíz devuelve la 404 raíz.
+
+---
+
+## 6. Ampliación: varios Workers, páginas solo HTML y actualización de una sección
+
+### 6.1 Motivo
+
+Gasolineras (`../gasolineras`, ruta `/es/gasolineras`) tiene unas 15 000 páginas. En el plan gratuito cada Worker admite 20 000 ficheros. Por eso:
+
+- gasolineras se publica en un **Worker propio** (`ododex-gasolineras`), con su carpeta de salida y su configuración de wrangler;
+- de sus páginas de gasolinera y de municipio se publica **solo el HTML**;
+- el titular la actualiza a diario, solo esa sección, con doble clic.
+
+Cuando `ododex.com` esté en Cloudflare, una *route* `ododex.com/es/gasolineras*` llevará esas peticiones al Worker de gasolineras. Las routes se ejecutan antes que el dominio personalizado del Worker principal. Hasta entonces se prueba en su URL `*.workers.dev`, bajo `/es/gasolineras`.
+
+### 6.2 Configuración
+
+`config/secciones.json`: cada sección admite dos campos opcionales.
+
+- `"worker"`: nombre del Worker propio. Si no se indica, la sección va al Worker principal.
+- `"paginasSoloHtml"`: lista de patrones de ruta de página, relativos a la sección y sin `.html`. Cada segmento es literal o `*` (un segmento cualquiera). Ejemplo: `["gasolinera/*", "provincia/*/*"]`.
+
+```json
+{
+  "ruta": "/es/gasolineras",
+  "proyecto": "../gasolineras",
+  "nombre": "Gasolineras",
+  "descripcion": "Precio de la gasolina y el diésel hoy en cada gasolinera de España.",
+  "worker": "ododex-gasolineras",
+  "paginasSoloHtml": ["gasolinera/*", "provincia/*/*"]
+}
+```
+
+`config/produccion.json`, en git, porque no tiene secretos: `{ "origen": "https://ododex.com", "clienteAdsense": "" }`. Las variables de entorno `SITE_ORIGIN` y `ADSENSE_CLIENT`, si existen, tienen prioridad.
+
+### 6.3 Ensamblado (`lib/ensamblado.mjs`)
+
+Nuevas funciones públicas:
+
+```js
+/** Carpeta de salida de un Worker: DIR_SALIDA ("dist") para el principal,
+ *  `${DIR_SALIDA}-${sufijo}` para los demás, donde sufijo es el nombre del worker sin el
+ *  prefijo "ododex-" (ododex-gasolineras → dist-gasolineras). */
+export function dirSalidaDeWorker(worker | undefined) → string
+
+/** Para cada página <dirSeccion>/<P>.html cuya ruta P cumpla algún patrón: borra <P>.txt si
+ *  existe y el directorio <P>/ si existe. Lanza Error si ese directorio contiene algo que no
+ *  empiece por "__next" (se borraría contenido real). Devuelve las páginas tratadas. */
+export function quitarRscDePaginas(dirSeccion, patrones) → number
+
+/** Lee config/produccion.json y aplica las variables de entorno.
+ *  Devuelve { origen, clienteAdsense }. */
+export function leerProduccion(ficheroConfig, entorno = process.env) → object
+```
+
+Cambios en `leerSecciones`: valida `worker`, que debe cumplir `/^ododex-[a-z0-9-]+$/`, y `paginasSoloHtml`, que debe ser un array de cadenas con segmentos `[a-z0-9-]+` o `*`.
+
+Cambios en `ensamblar({ ..., solo })`:
+
+- Agrupa las secciones por Worker y genera una carpeta por Worker con `dirSalidaDeWorker`.
+- Carpeta principal (`dist/`): raíz, portada, `robots.txt` (con los sitemaps de **todas** las secciones, también las de otros Workers), `_headers` y `ads.txt`, más las secciones sin `worker`. La portada enlaza todas las secciones.
+- Carpeta de cada Worker propio: solo sus secciones y un `_headers` con sus bloques de `_next/static`. No lleva raíz ni portada; su 404 es la de la sección.
+- Por sección, en este orden: `copiarSeccion`, `aplanarSegmentosNext`, `quitarRscDePaginas` (si tiene `paginasSoloHtml`).
+- `comprobarLimitesPages` se aplica a **cada** carpeta de salida.
+- Con `solo: "<ruta>"`, solo se regenera la carpeta del Worker de esa sección, y la carpeta principal no se toca. Si esa sección va en el Worker principal, se regenera `dist/` entero, porque es una sola carpeta. Una `solo` que no está en el config da error.
+- La protección de vaciado de 3.2 se aplica a cada carpeta: el nombre debe empezar por `dist`.
+- Devuelve `{ workers: [{ worker, dir, ficheros }], secciones, adsTxt }`.
+
+### 6.4 Scripts
+
+- `scripts/construir.mjs`:
+  - acepta `--solo <ruta>`: compila solo esa sección y ensambla con `solo`;
+  - lee el origen y AdSense con `leerProduccion`.
+- `scripts/desplegar.mjs` (nuevo): por cada Worker afectado (todos, o el de `--solo`), ejecuta `npx wrangler deploy --config <fichero>` con `spawnSync` y `shell: true`, sin interpolar datos externos.
+  - El Worker principal usa `wrangler.jsonc`.
+  - Cada Worker propio usa `wrangler.<sufijo>.jsonc`, que tiene que existir; si no, da error.
+  - Termina con código 1 y un mensaje claro si algo falla.
+- `wrangler.gasolineras.jsonc`: `name: "ododex-gasolineras"`, `assets.directory: "dist-gasolineras"`, `html_handling: "auto-trailing-slash"`, `not_found_handling: "404-page"` y la misma `compatibility_date`. Las `routes` se añadirán cuando el dominio esté en Cloudflare; el README lo explica.
+- `package.json`:
+  - `"deploy": "node scripts/desplegar.mjs"`;
+  - `"actualizar:gasolineras": "node scripts/construir.mjs --solo /es/gasolineras && node scripts/desplegar.mjs --solo /es/gasolineras"`.
+- `.gitignore`: `dist-*/`.
+- `Actualizar gasolineras.bat`, en la raíz del proyecto:
+  1. cambia a su propia carpeta con `cd /d "%~dp0"`;
+  2. muestra "Actualizando precios de gasolineras…";
+  3. ejecuta `npm run actualizar:gasolineras`;
+  4. muestra un aviso de éxito o de error según `%ERRORLEVEL%`;
+  5. termina con `pause`, para que el titular vea el resultado.
+
+  Lo copia la sesión principal al escritorio como acceso directo.
+- `scripts/previsualizar.mjs`: sirve `dist/` y, bajo la ruta de cada sección con Worker propio, su carpeta. Así se ve en local como quedará con las routes. Lo resuelve `crearServidor(dist, montajes)`, donde `montajes` es `[{ prefijo: "/es/gasolineras", dir: <abs dist-gasolineras> }]` y la ruta se resuelve sobre esa carpeta conservando la URL completa.
+
+### 6.5 Criterios de aceptación
+
+- `npm test` pasa, con estas pruebas nuevas:
+  - `dirSalidaDeWorker`;
+  - `quitarRscDePaginas`: patrón con `*`, la página de provincia no se toca, error si el directorio tiene contenido real;
+  - `leerProduccion` con y sin variables de entorno;
+  - `leerSecciones` con `worker` o `paginasSoloHtml` inválidos;
+  - `ensamblar` con dos Workers, comprobando que `robots.txt` lista los tres sitemaps y que `solo` no toca `dist/`;
+  - el servidor con montajes.
+- `npm run build:sin-compilar` sigue funcionando con las secciones compiladas. Si el `out/` de gasolineras aún no existe, el error dice qué sección compilar.
