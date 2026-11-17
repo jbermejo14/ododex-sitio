@@ -366,3 +366,72 @@ Cambios en `ensamblar({ ..., solo })`:
   - `ensamblar` con dos Workers, comprobando que `robots.txt` lista los tres sitemaps y que `solo` no toca `dist/`;
   - el servidor con montajes.
 - `npm run build:sin-compilar` sigue funcionando con las secciones compiladas. Si el `out/` de gasolineras aún no existe, el error dice qué sección compilar.
+
+---
+
+## 7. Ampliación: secciones compiladas por idioma (llamadas a revisión)
+
+### 7.1 Motivo
+
+`../recalls-web` se compila dos veces, una por idioma, con la variable `RECALLS_LANG`:
+
+- con `es`, exporta en `out-es/` bajo `/es/llamadas-revision`;
+- con `en`, exporta en `out-en/` bajo `/en/recalls`.
+
+Cada idioma va en su propio Worker. La sección inglesa no es de España, así que no debe salir en la portada española.
+
+### 7.2 Configuración
+
+Campos opcionales nuevos de cada sección en `config/secciones.json`:
+
+- `"entorno"`: objeto de variables de entorno adicionales para su compilación. Claves `[A-Z_][A-Z0-9_]*`; valores de texto `[A-Za-z0-9._-]*`, sin espacios ni caracteres de shell.
+- `"exportacion"`: nombre de la carpeta de exportación dentro del proyecto, `[a-z0-9-]+`. Por defecto `DIR_EXPORTACION` (`"out"`).
+- `"enPortada"`: booleano, por defecto `true`. Con `false`, la sección no sale en la portada. Sí sale su sitemap en `robots.txt`.
+
+Secciones nuevas:
+
+```json
+{
+  "ruta": "/es/llamadas-revision",
+  "proyecto": "../recalls-web",
+  "nombre": "Llamadas a revisión",
+  "descripcion": "Campañas de llamada a revisión de coches y motos publicadas en Safety Gate, por marca y modelo.",
+  "worker": "ododex-llamadas-revision",
+  "entorno": { "RECALLS_LANG": "es" },
+  "exportacion": "out-es",
+  "paginasSoloHtml": ["campana/*", "marca/*/*"]
+},
+{
+  "ruta": "/en/recalls",
+  "proyecto": "../recalls-web",
+  "nombre": "Vehicle recalls",
+  "descripcion": "EU Safety Gate vehicle recall campaigns by make and model.",
+  "worker": "ododex-recalls",
+  "entorno": { "RECALLS_LANG": "en" },
+  "exportacion": "out-en",
+  "paginasSoloHtml": ["campana/*", "marca/*/*"],
+  "enPortada": false
+}
+```
+
+### 7.3 Cambios
+
+- `leerSecciones` valida los tres campos con mensajes claros.
+- `construir.mjs`:
+  - compila cada sección con su `entorno` sumado al de producción;
+  - si dos secciones comparten `proyecto`, cada una se compila por separado con su entorno, mediante `npm run build:<idioma>` si `entorno.RECALLS_LANG` existe, o `npm run build` en los demás casos. Para no meter lógica de un proyecto concreto aquí, se añade un campo opcional `"scriptBuild"` (por defecto `"build"`, `[a-z0-9:-]+`), y estas dos secciones usan `"build:es"` y `"build:en"`.
+- `copiarSeccion`, `exigirSeccionesCompiladas` y demás usan `<proyecto>/<exportacion>`.
+- `generarPortada` solo enlaza las secciones con `enPortada !== false`.
+- Nuevos ficheros `wrangler.llamadas-revision.jsonc` (`name: "ododex-llamadas-revision"`, `assets.directory: "dist-llamadas-revision"`) y `wrangler.recalls.jsonc` (`name: "ododex-recalls"`, `assets.directory: "dist-recalls"`). Los dos llevan `html_handling: "auto-trailing-slash"`, `not_found_handling: "404-page"`, la misma `compatibility_date`, `workers_dev: false`, `preview_urls: false` y su route: `ododex.com/es/llamadas-revision*` y `ododex.com/en/recalls*` (`zone_name: "ododex.com"`).
+- `raiz/404.html`: enlace a `/es/llamadas-revision`.
+- README: tabla de secciones y nota sobre `entorno`, `exportacion`, `scriptBuild` y `enPortada`.
+
+### 7.4 Criterios de aceptación
+
+- `npm test` pasa, con pruebas de:
+  - validación de `entorno`, `exportacion`, `scriptBuild` y `enPortada`;
+  - portada sin las secciones con `enPortada: false`;
+  - `robots.txt` con todas las secciones;
+  - ensamblado de dos secciones del mismo proyecto con distintas carpetas de exportación;
+  - el comando de compilación elegido, con una función pura exportada `comandoCompilacion(seccion)` que devuelve `"npm run <scriptBuild>"`.
+- `node --check` pasa en todos los scripts.
