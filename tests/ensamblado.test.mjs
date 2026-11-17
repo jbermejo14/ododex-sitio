@@ -11,6 +11,7 @@ import {
   textoHeaders,
   generarPortada,
   copiarSeccion,
+  aplanarSegmentosNext,
   comprobarLimitesPages,
   ensamblar,
 } from "../lib/ensamblado.mjs";
@@ -46,6 +47,12 @@ function escribirConfig(valor) {
 describe("leerSecciones", () => {
   test("acepta una configuración válida", () => {
     assert.deepEqual(leerSecciones(escribirConfig(SECCIONES)), SECCIONES);
+  });
+
+  test("un JSON roto da un Error que nombra el fichero", () => {
+    const fichero = path.join(tmp, "roto.json");
+    fs.writeFileSync(fichero, "{ no es json");
+    assert.throws(() => leerSecciones(fichero), /roto.json.*JSON válido/);
   });
 
   test("rechaza un array vacío", () => {
@@ -156,6 +163,54 @@ describe("copiarSeccion", () => {
   });
 });
 
+describe("aplanarSegmentosNext", () => {
+  test("aplana un nivel", () => {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "radares", "a-coruna", "__next.radares", "$d$provincia", "__PAGE__.txt"), "p");
+    assert.equal(aplanarSegmentosNext(dir), 1);
+    const destino = path.join(dir, "radares", "a-coruna", "__next.radares.$d$provincia.__PAGE__.txt");
+    assert.equal(fs.readFileSync(destino, "utf8"), "p");
+    assert.ok(!fs.existsSync(path.join(dir, "radares", "a-coruna", "__next.radares")));
+  });
+
+  test("aplana varios niveles", () => {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "a", "__next.radares", "$d$provincia", "$d$carretera", "__PAGE__.txt"), "p");
+    assert.equal(aplanarSegmentosNext(dir), 1);
+    assert.ok(fs.existsSync(path.join(dir, "a", "__next.radares.$d$provincia.$d$carretera.__PAGE__.txt")));
+    assert.ok(!fs.existsSync(path.join(dir, "a", "__next.radares")));
+  });
+
+  test("aplana varios ficheros del mismo __next.*", () => {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "a", "__next.radares", "__PAGE__.txt"), "1");
+    escribir(path.join(dir, "a", "__next.radares", "$d$provincia", "__PAGE__.txt"), "2");
+    escribir(path.join(dir, "a", "__next.radares", "$d$provincia", "__head.txt"), "3");
+    assert.equal(aplanarSegmentosNext(dir), 3);
+    for (const nombre of ["__next.radares.__PAGE__.txt", "__next.radares.$d$provincia.__PAGE__.txt", "__next.radares.$d$provincia.__head.txt"]) {
+      assert.ok(fs.existsSync(path.join(dir, "a", nombre)), `falta ${nombre}`);
+    }
+  });
+
+  test("sin directorios __next.* devuelve 0 y no toca nada", () => {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "a", "index.html"), "i");
+    escribir(path.join(dir, "a", "__next.radares.__PAGE__.txt"), "ya plano");
+    assert.equal(aplanarSegmentosNext(dir), 0);
+    assert.equal(fs.readFileSync(path.join(dir, "a", "__next.radares.__PAGE__.txt"), "utf8"), "ya plano");
+    assert.ok(fs.existsSync(path.join(dir, "a", "index.html")));
+  });
+
+  test("si el destino existe lanza Error y no mueve nada", () => {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "a", "__next.radares", "__PAGE__.txt"), "origen");
+    escribir(path.join(dir, "a", "__next.radares.__PAGE__.txt"), "destino");
+    assert.throws(() => aplanarSegmentosNext(dir), /ya existe/);
+    assert.ok(fs.existsSync(path.join(dir, "a", "__next.radares", "__PAGE__.txt")));
+    assert.equal(fs.readFileSync(path.join(dir, "a", "__next.radares.__PAGE__.txt"), "utf8"), "destino");
+  });
+});
+
 describe("comprobarLimitesPages", () => {
   test("devuelve el número de ficheros", () => {
     escribir(path.join(tmp, "a.txt"), "a");
@@ -203,6 +258,28 @@ describe("ensamblar", () => {
       assert.ok(fs.existsSync(path.join(dist, relativa)), `falta ${relativa}`);
     }
     assert.match(fs.readFileSync(path.join(dist, "index.html"), "utf8"), /href="\/es\/multas"/);
+  });
+
+  test("aplana los __next.* de cada sección copiada", () => {
+    const opciones = prepararBase();
+    escribir(path.join(tmp, "multas", "out", "radares", "__next.radares", "$d$p", "__PAGE__.txt"), "p");
+    ensamblar(opciones);
+    assert.ok(fs.existsSync(path.join(opciones.dist, "es", "multas", "radares", "__next.radares.$d$p.__PAGE__.txt")));
+    assert.ok(fs.existsSync(path.join(tmp, "multas", "out", "radares", "__next.radares", "$d$p", "__PAGE__.txt")));
+  });
+
+  test("si falta el out/ de una sección no vacía dist", () => {
+    const opciones = prepararBase();
+    escribir(path.join(opciones.dist, "previo.txt"), "debe seguir");
+    fs.rmSync(path.join(tmp, "impuestos", "out", "index.html"));
+    assert.throws(() => ensamblar(opciones), /compila la sección/);
+    assert.ok(fs.existsSync(path.join(opciones.dist, "previo.txt")));
+  });
+
+  test("rechaza rutas de sección con segmentos ..", () => {
+    const opciones = prepararBase();
+    const secciones = [{ ...SECCIONES[0], ruta: "/es/../fuera" }];
+    assert.throws(() => ensamblar({ ...opciones, secciones }), /"ruta"/);
   });
 
   test("sin cliente de AdSense no genera ads.txt", () => {

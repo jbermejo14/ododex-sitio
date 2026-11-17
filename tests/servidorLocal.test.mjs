@@ -1,6 +1,7 @@
 import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { resolverRuta, tipoMime, crearServidor } from "../lib/servidorLocal.mjs";
@@ -80,7 +81,28 @@ describe("resolverRuta", () => {
   test("rechaza .. que sale de dist", () => {
     assert.equal(resolverRuta(dist, "/../secreto.txt").estado, 404);
     assert.equal(resolverRuta(dist, "/%2e%2e/secreto.txt").estado, 404);
-    assert.notEqual(resolverRuta(dist, "/../secreto.txt").fichero, path.join(tmp, "secreto.txt"));
+  });
+
+  test("rechaza traversal con barra invertida, byte nulo y ruta absoluta", () => {
+    assert.equal(resolverRuta(dist, "/..%5Csecreto.txt").estado, 404);
+    assert.equal(resolverRuta(dist, "/a%00").estado, 404);
+    assert.equal(resolverRuta(dist, "/a%00").fichero, null);
+    const absoluta = resolverRuta(dist, "/C:/Windows/win.ini");
+    assert.equal(absoluta.estado, 404);
+    assert.notEqual(absoluta.fichero, "C:\Windows\win.ini");
+  });
+
+  test("GET / no sale de dist hacia <dist>.html", () => {
+    const aislado = fs.mkdtempSync(path.join(os.tmpdir(), "ododex-hermano-"));
+    try {
+      const distAislado = path.join(aislado, "dist");
+      fs.mkdirSync(distAislado);
+      fs.writeFileSync(path.join(distAislado, "index.html"), "portada");
+      fs.writeFileSync(path.join(aislado, "dist.html"), "hermano");
+      assert.equal(resolverRuta(distAislado, "/").fichero, path.join(distAislado, "index.html"));
+    } finally {
+      fs.rmSync(aislado, { recursive: true, force: true });
+    }
   });
 
   test("una secuencia %xx malformada da 404", () => {
@@ -122,6 +144,26 @@ describe("crearServidor", () => {
     const respuesta = await fetch(`${base}/es/multas/no-existe`);
     assert.equal(respuesta.status, 404);
     assert.equal(await respuesta.text(), "404 multas");
+  });
+
+  test("HEAD devuelve 200 sin cuerpo", async () => {
+    const respuesta = await fetch(`${base}/es/multas/radares`, { method: "HEAD" });
+    assert.equal(respuesta.status, 200);
+    assert.equal(respuesta.headers.get("content-length"), String("radares".length));
+    assert.equal(await respuesta.text(), "");
+  });
+
+  test("una URL imposible de analizar devuelve 400 y el servidor sigue vivo", async () => {
+    const estado = await new Promise((resolver, rechazar) => {
+      const peticion = http.request({ host: "127.0.0.1", port: servidor.address().port, path: "//" }, (respuesta) => {
+        respuesta.resume();
+        resolver(respuesta.statusCode);
+      });
+      peticion.on("error", rechazar);
+      peticion.end();
+    });
+    assert.equal(estado, 400);
+    assert.equal((await fetch(`${base}/robots.txt`)).status, 200);
   });
 
   test("POST devuelve 405", async () => {

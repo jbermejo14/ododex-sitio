@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ensamblar, leerSecciones, normalizarOrigen } from "../lib/ensamblado.mjs";
+import { DIR_SALIDA, ensamblar, leerSecciones, normalizarOrigen, textoAdsTxt } from "../lib/ensamblado.mjs";
 
 const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGEN_POR_DEFECTO = "https://ododex.com";
@@ -19,6 +19,9 @@ function compilarSeccion(seccion, origen, clienteAdsense) {
       NEXT_PUBLIC_ADSENSE_CLIENT: clienteAdsense,
     },
   });
+  if (resultado.error) {
+    throw new Error(`No se pudo lanzar la compilación de ${seccion.ruta} en ${seccion.proyecto}: ${resultado.error.message}`);
+  }
   if (resultado.status !== 0) {
     throw new Error(`Falló la compilación de ${seccion.ruta} en ${seccion.proyecto}`);
   }
@@ -30,14 +33,23 @@ function mostrarResumen(resumen) {
   console.log(`ads.txt: ${resumen.adsTxt ? "generado" : "no generado"}`);
 }
 
+function avisarAdsenseVacio(sinCompilar) {
+  const consecuencia = sinCompilar
+    ? "No se genera ads.txt; las secciones ya compiladas no cambian."
+    : "No se genera ads.txt y las secciones se compilan sin AdSense.";
+  console.warn(`Aviso: ADSENSE_CLIENT está vacía. ${consecuencia}`);
+}
+
 function construir() {
   const sinCompilar = process.argv.includes(FLAG_SIN_COMPILAR);
   const origen = normalizarOrigen(process.env.SITE_ORIGIN || ORIGEN_POR_DEFECTO);
   const clienteAdsense = process.env.ADSENSE_CLIENT || "";
   const secciones = leerSecciones(path.join(DIR_BASE, "config", "secciones.json"));
 
+  // Se valida antes de compilar para no perder minutos de compilación por un valor mal escrito.
+  textoAdsTxt(clienteAdsense);
   if (clienteAdsense === "") {
-    console.warn("Aviso: ADSENSE_CLIENT está vacía. No se genera ads.txt y las secciones se compilan sin AdSense.");
+    avisarAdsenseVacio(sinCompilar);
   }
   if (!sinCompilar) {
     secciones.forEach((seccion) => compilarSeccion(seccion, origen, clienteAdsense));
@@ -47,7 +59,7 @@ function construir() {
       secciones,
       dirBase: DIR_BASE,
       dirRaiz: path.join(DIR_BASE, "raiz"),
-      dist: path.join(DIR_BASE, "dist"),
+      dist: path.join(DIR_BASE, DIR_SALIDA),
       origen,
       clienteAdsense,
     }),
