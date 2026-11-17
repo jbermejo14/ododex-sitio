@@ -1,0 +1,14 @@
+[
+  {
+    "ruta": "/es/multas",
+    "proyecto": "../multas-dgt",
+    "nombre": "Multas y radares",
+    "descripcion": "Calcula multas por velocidad y puntos del carnet, y consulta los radares de la DGT."
+  },
+  {
+    "ruta": "/es/impuestos",
+    "proyecto": "../calculadora-impuestos",
+    "nombre": "Impuestos de vehículos",
+    "descripcion": "Calcula el impuesto de matriculación y el ITP de coches de segunda mano."
+  }
+]

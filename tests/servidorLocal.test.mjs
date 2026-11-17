@@ -1,0 +1,131 @@
+import { test, describe, before, after } from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { resolverRuta, tipoMime, crearServidor } from "../lib/servidorLocal.mjs";
+
+let tmp;
+let dist;
+
+function escribir(relativa, contenido) {
+  const ruta = path.join(dist, relativa);
+  fs.mkdirSync(path.dirname(ruta), { recursive: true });
+  fs.writeFileSync(ruta, contenido);
+}
+
+before(() => {
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ododex-srv-"));
+  dist = path.join(tmp, "dist");
+  escribir("index.html", "raiz");
+  escribir("404.html", "404 raiz");
+  escribir("robots.txt", "robots");
+  escribir("con espacio.txt", "espacio");
+  escribir("es/multas.html", "multas");
+  escribir("es/multas/index.html", "multas index");
+  escribir("es/multas/radares.html", "radares");
+  escribir("es/multas/404.html", "404 multas");
+  escribir("es/impuestos/index.html", "impuestos");
+  fs.writeFileSync(path.join(tmp, "secreto.txt"), "fuera de dist");
+});
+
+after(() => {
+  fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+describe("resolverRuta", () => {
+  test("regla 1: fichero exacto", () => {
+    assert.deepEqual(resolverRuta(dist, "/robots.txt"), { fichero: path.join(dist, "robots.txt"), estado: 200 });
+  });
+
+  test("regla 2: ruta.html tiene prioridad sobre el directorio", () => {
+    assert.equal(resolverRuta(dist, "/es/multas").fichero, path.join(dist, "es", "multas.html"));
+    assert.equal(resolverRuta(dist, "/es/multas/radares").fichero, path.join(dist, "es", "multas", "radares.html"));
+  });
+
+  test("regla 3: directorio con index.html", () => {
+    assert.deepEqual(resolverRuta(dist, "/es/impuestos"), {
+      fichero: path.join(dist, "es", "impuestos", "index.html"),
+      estado: 200,
+    });
+    assert.equal(resolverRuta(dist, "/").fichero, path.join(dist, "index.html"));
+  });
+
+  test("regla 4: 404.html del directorio más cercano", () => {
+    assert.deepEqual(resolverRuta(dist, "/es/multas/no-existe"), {
+      fichero: path.join(dist, "es", "multas", "404.html"),
+      estado: 404,
+    });
+    assert.deepEqual(resolverRuta(dist, "/no-existe"), { fichero: path.join(dist, "404.html"), estado: 404 });
+    assert.equal(resolverRuta(dist, "/es/impuestos/x").fichero, path.join(dist, "404.html"));
+  });
+
+  test("regla 5: sin 404.html devuelve fichero null", () => {
+    const vacio = fs.mkdtempSync(path.join(os.tmpdir(), "ododex-vacio-"));
+    try {
+      assert.deepEqual(resolverRuta(vacio, "/nada"), { fichero: null, estado: 404 });
+    } finally {
+      fs.rmSync(vacio, { recursive: true, force: true });
+    }
+  });
+
+  test("la barra final equivale a la ruta sin barra", () => {
+    assert.equal(resolverRuta(dist, "/es/multas/").fichero, path.join(dist, "es", "multas.html"));
+  });
+
+  test("decodifica %20", () => {
+    assert.equal(resolverRuta(dist, "/con%20espacio.txt").fichero, path.join(dist, "con espacio.txt"));
+  });
+
+  test("rechaza .. que sale de dist", () => {
+    assert.equal(resolverRuta(dist, "/../secreto.txt").estado, 404);
+    assert.equal(resolverRuta(dist, "/%2e%2e/secreto.txt").estado, 404);
+    assert.notEqual(resolverRuta(dist, "/../secreto.txt").fichero, path.join(tmp, "secreto.txt"));
+  });
+
+  test("una secuencia %xx malformada da 404", () => {
+    assert.deepEqual(resolverRuta(dist, "/%E0%A4%A"), { fichero: null, estado: 404 });
+  });
+});
+
+test("tipoMime", () => {
+  assert.equal(tipoMime("a.html"), "text/html; charset=utf-8");
+  assert.equal(tipoMime("a.css"), "text/css; charset=utf-8");
+  assert.equal(tipoMime("a.js"), "text/javascript; charset=utf-8");
+  assert.equal(tipoMime("a.svg"), "image/svg+xml");
+  assert.equal(tipoMime("a.woff2"), "font/woff2");
+  assert.equal(tipoMime("a.desconocido"), "application/octet-stream");
+});
+
+describe("crearServidor", () => {
+  let servidor;
+  let base;
+
+  before(async () => {
+    servidor = crearServidor(dist);
+    await new Promise((resolver) => servidor.listen(0, "127.0.0.1", resolver));
+    base = `http://127.0.0.1:${servidor.address().port}`;
+  });
+
+  after(async () => {
+    await new Promise((resolver) => servidor.close(resolver));
+  });
+
+  test("GET devuelve 200 con el contenido y el tipo", async () => {
+    const respuesta = await fetch(`${base}/es/multas/radares`);
+    assert.equal(respuesta.status, 200);
+    assert.equal(respuesta.headers.get("content-type"), "text/html; charset=utf-8");
+    assert.equal(await respuesta.text(), "radares");
+  });
+
+  test("GET inexistente devuelve 404 con la página más cercana", async () => {
+    const respuesta = await fetch(`${base}/es/multas/no-existe`);
+    assert.equal(respuesta.status, 404);
+    assert.equal(await respuesta.text(), "404 multas");
+  });
+
+  test("POST devuelve 405", async () => {
+    const respuesta = await fetch(`${base}/`, { method: "POST" });
+    assert.equal(respuesta.status, 405);
+  });
+});

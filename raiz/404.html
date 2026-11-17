@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Página no encontrada | Ododex</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="/ododex-favicon.svg">
+  <link rel="stylesheet" href="/estilos.css">
+  <script>
+    (function () {
+      var theme = null;
+      try {
+        var saved = localStorage.getItem('ododex-theme');
+        if (saved === 'light' || saved === 'dark') theme = saved;
+        if (!theme) {
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = prefersDark ? 'dark' : 'light';
+        }
+      } catch (e) {
+        theme = 'light';
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-container">
+      <a class="brand" href="/" aria-label="Ododex, inicio">
+        <img class="brand-logo brand-logo-light" src="/brand/ododex-logo-light.svg" alt="Ododex" width="116" height="28">
+        <img class="brand-logo brand-logo-dark" src="/brand/ododex-logo-dark.svg" alt="Ododex" width="116" height="28">
+      </a>
+      <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Cambiar entre tema claro y oscuro">
+        <span class="theme-when-light" aria-hidden="true">☾</span>
+        <span class="theme-when-dark" aria-hidden="true">☀</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <h1 class="page-title">Página no encontrada</h1>
+    <p class="page-intro">La dirección que buscas no existe o ha cambiado de sitio. Vuelve al inicio o entra en una de las secciones.</p>
+    <nav class="link-grid" aria-label="Secciones">
+      <a class="link-card" href="/"><span><span class="link-card-name">Inicio</span><span class="link-card-hint">Portada de Ododex</span></span><span class="link-card-arrow" aria-hidden="true">→</span></a>
+      <a class="link-card" href="/es/multas"><span><span class="link-card-name">Multas y radares</span><span class="link-card-hint">Multas por velocidad, puntos del carnet y radares</span></span><span class="link-card-arrow" aria-hidden="true">→</span></a>
+      <a class="link-card" href="/es/impuestos"><span><span class="link-card-name">Impuestos de vehículos</span><span class="link-card-hint">Impuesto de matriculación e ITP</span></span><span class="link-card-arrow" aria-hidden="true">→</span></a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-text">Ododex</p>
+    <div class="footer-legal">
+      <a href="/es/multas/aviso-legal">Aviso legal</a>
+      <a href="/es/multas/privacidad">Privacidad</a>
+      <a href="/es/multas/cookies">Cookies</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('ododex-theme', next); } catch (e) { /* sin almacenamiento: el tema solo dura esta visita */ }
+    });
+  </script>
+</body>
+</html>

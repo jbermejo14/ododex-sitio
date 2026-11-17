@@ -145,13 +145,27 @@ export function generarPortada(plantilla, secciones, origen) → string
  *  Lanza Error si <dirOut> o su index.html no existen, con el aviso "compila la sección". */
 export function copiarSeccion(dirOut, dist, ruta) → void
 
+/** Corrige en <dirSeccion> los ficheros de precarga por segmentos que Next exporta mal en
+ *  Windows. El navegador pide `<ruta>/__next.radares.$d$provincia.__PAGE__.txt` (segmentos
+ *  unidos con puntos). Next 16.4 en Windows los escribe como carpetas
+ *  (`__next.radares/$d$provincia/__PAGE__.txt`), porque su conversión solo sustituye "/" y la
+ *  ruta trae "\".
+ *  Para cada directorio cuyo nombre empiece por "__next.", mueve cada fichero que contenga
+ *  al directorio padre de ese "__next.*", con su ruta relativa unida por puntos tras el
+ *  nombre del directorio, y borra el directorio. Ejemplo:
+ *  `a/__next.radares/$d$provincia/__PAGE__.txt` → `a/__next.radares.$d$provincia.__PAGE__.txt`.
+ *  Si el destino ya existe, lanza Error. Sin esos directorios (compilación en Linux) no hace
+ *  nada. Devuelve el número de ficheros movidos. */
+export function aplanarSegmentosNext(dirSeccion) → number
+
 /** Recorre dist y lanza Error si hay más de MAX_FICHEROS_PAGES (20000) ficheros o alguno
  *  supera MAX_BYTES_FICHERO_PAGES (25 MiB). El mensaje dice cuál y cuánto.
  *  Devuelve el número de ficheros. */
 export function comprobarLimitesPages(dist) → number
 
 /** Orquesta: vacía y recrea `dist`; copia `dirRaiz` (salvo index.html, que se genera con
- *  generarPortada a partir de raiz/index.html); llama a copiarSeccion por sección; escribe
+ *  generarPortada a partir de raiz/index.html); llama a copiarSeccion y después a
+ *  aplanarSegmentosNext sobre <dist><ruta> por sección; escribe
  *  robots.txt, _headers y, si textoAdsTxt no es null, ads.txt; comprueba los límites.
  *  Devuelve { ficheros, secciones: n, adsTxt: boolean }. */
 export function ensamblar({ secciones, dirBase, dirRaiz, dist, origen, clienteAdsense }) → object
