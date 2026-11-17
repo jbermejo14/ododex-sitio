@@ -1,10 +1,14 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Worker propio de gasolineras: tiene unas 15 000 páginas y el plan gratuito admite 20 000 ficheros por Worker.
-  // Cuando ododex.com esté activo en Cloudflare, añade aquí:
-  //   "routes": [{ "pattern": "ododex.com/es/gasolineras*", "zone_name": "ododex.com" }]
+  // La route lleva /es/gasolineras* a este Worker; se ejecuta antes que el dominio
+  // personalizado del Worker principal (wrangler.jsonc).
   "name": "ododex-gasolineras",
   "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/gasolineras*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
   "observability": {
     "enabled": true
   },

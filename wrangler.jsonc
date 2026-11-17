@@ -4,6 +4,12 @@
   // (Cloudflare ha integrado Pages en Workers; `wrangler pages` crea ya un Worker).
   "name": "ododex",
   "compatibility_date": "2026-11-03",
+  // Dominio principal. www.ododex.com no se adjunta: una regla de redirección del panel
+  // de Cloudflare lo manda a ododex.com (ver README).
+  "routes": [{ "pattern": "ododex.com", "custom_domain": true }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
   "observability": {
     "enabled": true
   },
