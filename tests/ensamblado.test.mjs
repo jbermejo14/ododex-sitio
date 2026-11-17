@@ -14,6 +14,10 @@ import {
   aplanarSegmentosNext,
   comprobarLimitesPages,
   ensamblar,
+  dirSalidaDeWorker,
+  quitarRscDePaginas,
+  leerProduccion,
+  leerOpcionSolo,
 } from "../lib/ensamblado.mjs";
 
 const SECCIONES = [
@@ -248,7 +252,11 @@ describe("ensamblar", () => {
     escribir(path.join(opciones.dist, "viejo.txt"), "debe desaparecer");
     const resumen = ensamblar({ ...opciones, clienteAdsense: "pub-1234567890123456" });
     const { dist } = opciones;
-    assert.deepEqual(resumen, { ficheros: 12, secciones: 2, adsTxt: true });
+    assert.deepEqual(resumen, {
+      workers: [{ worker: undefined, dir: dist, ficheros: 12 }],
+      secciones: 2,
+      adsTxt: true,
+    });
     assert.ok(!fs.existsSync(path.join(dist, "viejo.txt")));
     for (const relativa of [
       "index.html", "404.html", "estilos.css", "robots.txt", "_headers", "ads.txt",
@@ -308,5 +316,207 @@ describe("ensamblar", () => {
     } finally {
       fs.rmSync(fuera, { recursive: true, force: true });
     }
+  });
+});
+
+describe("dirSalidaDeWorker", () => {
+  test("el principal usa dist y los demás dist-<sufijo>", () => {
+    assert.equal(dirSalidaDeWorker(undefined), "dist");
+    assert.equal(dirSalidaDeWorker("ododex-gasolineras"), "dist-gasolineras");
+  });
+});
+
+describe("quitarRscDePaginas", () => {
+  function crearSeccion() {
+    const dir = path.join(tmp, "seccion");
+    escribir(path.join(dir, "gasolinera", "a.html"), "a");
+    escribir(path.join(dir, "gasolinera", "a.txt"), "rsc");
+    escribir(path.join(dir, "gasolinera", "a", "__next.gasolinera.a.__PAGE__.txt"), "rsc");
+    escribir(path.join(dir, "provincia", "madrid.html"), "provincia");
+    escribir(path.join(dir, "provincia", "madrid.txt"), "rsc provincia");
+    escribir(path.join(dir, "provincia", "madrid", "getafe.html"), "municipio");
+    escribir(path.join(dir, "provincia", "madrid", "getafe.txt"), "rsc municipio");
+    escribir(path.join(dir, "provincia", "madrid", "getafe", "__next.x.txt"), "rsc");
+    return dir;
+  }
+
+  test("quita el RSC de las páginas que cumplen el patrón con *", () => {
+    const dir = crearSeccion();
+    assert.equal(quitarRscDePaginas(dir, ["gasolinera/*", "provincia/*/*"]), 2);
+    assert.ok(fs.existsSync(path.join(dir, "gasolinera", "a.html")));
+    assert.ok(!fs.existsSync(path.join(dir, "gasolinera", "a.txt")));
+    assert.ok(!fs.existsSync(path.join(dir, "gasolinera", "a")));
+    assert.ok(fs.existsSync(path.join(dir, "provincia", "madrid", "getafe.html")));
+    assert.ok(!fs.existsSync(path.join(dir, "provincia", "madrid", "getafe.txt")));
+    assert.ok(!fs.existsSync(path.join(dir, "provincia", "madrid", "getafe")));
+  });
+
+  test("no toca la página de provincia", () => {
+    const dir = crearSeccion();
+    quitarRscDePaginas(dir, ["gasolinera/*", "provincia/*/*"]);
+    assert.ok(fs.existsSync(path.join(dir, "provincia", "madrid.html")));
+    assert.ok(fs.existsSync(path.join(dir, "provincia", "madrid.txt")));
+    assert.ok(fs.existsSync(path.join(dir, "provincia", "madrid")));
+  });
+
+  test("lanza Error si el directorio tiene contenido real", () => {
+    const dir = crearSeccion();
+    escribir(path.join(dir, "gasolinera", "a", "otra.html"), "real");
+    assert.throws(() => quitarRscDePaginas(dir, ["gasolinera/*"]), /otra\.html/);
+    assert.ok(fs.existsSync(path.join(dir, "gasolinera", "a", "otra.html")));
+  });
+});
+
+describe("leerProduccion", () => {
+  function escribirProduccion(valor) {
+    const fichero = path.join(tmp, "produccion.json");
+    fs.writeFileSync(fichero, JSON.stringify(valor));
+    return fichero;
+  }
+
+  test("sin variables de entorno usa el fichero", () => {
+    const fichero = escribirProduccion({ origen: "https://ododex.com/", clienteAdsense: "" });
+    assert.deepEqual(leerProduccion(fichero, {}), { origen: "https://ododex.com", clienteAdsense: "" });
+  });
+
+  test("las variables de entorno tienen prioridad", () => {
+    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "" });
+    const entorno = { SITE_ORIGIN: "http://localhost:3000", ADSENSE_CLIENT: "pub-1234567890123456" };
+    assert.deepEqual(leerProduccion(fichero, entorno), {
+      origen: "http://localhost:3000",
+      clienteAdsense: "pub-1234567890123456",
+    });
+  });
+
+  test("las variables vacías no pisan el fichero", () => {
+    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "pub-1111111111111111" });
+    const resultado = leerProduccion(fichero, { SITE_ORIGIN: "", ADSENSE_CLIENT: "" });
+    assert.equal(resultado.clienteAdsense, "pub-1111111111111111");
+  });
+
+  test("lanza Error si falta un campo", () => {
+    const fichero = escribirProduccion({ origen: "https://ododex.com" });
+    assert.throws(() => leerProduccion(fichero, {}), /clienteAdsense/);
+  });
+});
+
+describe("leerOpcionSolo", () => {
+  test("devuelve la ruta, undefined sin la opción y error sin valor", () => {
+    assert.equal(leerOpcionSolo(["node", "x", "--solo", "/es/a"]), "/es/a");
+    assert.equal(leerOpcionSolo(["node", "x"]), undefined);
+    assert.throws(() => leerOpcionSolo(["node", "x", "--solo"]), /--solo/);
+  });
+});
+
+describe("leerSecciones con worker y paginasSoloHtml", () => {
+  const base = { ruta: "/es/g", proyecto: "g", nombre: "G", descripcion: "D" };
+
+  test("acepta valores válidos", () => {
+    const fichero = escribirConfig([{ ...base, worker: "ododex-g", paginasSoloHtml: ["a/*", "b/*/*"] }]);
+    assert.equal(leerSecciones(fichero)[0].worker, "ododex-g");
+  });
+
+  for (const [descripcion, extra, mensaje] of [
+    ["worker sin prefijo", { worker: "g" }, /worker/],
+    ["worker que no es texto", { worker: 3 }, /worker/],
+    ["paginasSoloHtml que no es array", { paginasSoloHtml: "a/*" }, /paginasSoloHtml/],
+    ["patrón con mayúsculas", { paginasSoloHtml: ["A/*"] }, /paginasSoloHtml/],
+    ["patrón con comodín parcial", { paginasSoloHtml: ["a*/b"] }, /paginasSoloHtml/],
+    ["patrón que no es texto", { paginasSoloHtml: [1] }, /paginasSoloHtml/],
+  ]) {
+    test(`rechaza ${descripcion}`, () => {
+      assert.throws(() => leerSecciones(escribirConfig([{ ...base, ...extra }])), mensaje);
+    });
+  }
+});
+
+describe("ensamblar con varios Workers", () => {
+  const SECCION_PROPIA = {
+    ruta: "/es/gas",
+    proyecto: "gas",
+    nombre: "Gas",
+    descripcion: "Desc gas",
+    worker: "ododex-gas",
+    paginasSoloHtml: ["gasolinera/*"],
+  };
+  const TODAS = [...SECCIONES, SECCION_PROPIA];
+  const BYTES_SOBRE_LIMITE = 26 * 1024 * 1024;
+
+  function prepararVarios() {
+    const dirRaiz = path.join(tmp, "raiz");
+    escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "404.html"), "404 raiz");
+    for (const seccion of TODAS) {
+      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), `home ${seccion.proyecto}`);
+      escribir(path.join(tmp, seccion.proyecto, "out", "404.html"), `404 ${seccion.proyecto}`);
+    }
+    escribir(path.join(tmp, "gas", "out", "gasolinera", "x.html"), "x");
+    escribir(path.join(tmp, "gas", "out", "gasolinera", "x.txt"), "rsc");
+    escribir(path.join(tmp, "gas", "out", "gasolinera", "x", "__next.gasolinera.x.txt"), "rsc");
+    return { secciones: TODAS, dirBase: tmp, dirRaiz, dist: path.join(tmp, "dist"), origen: ORIGEN };
+  }
+
+  test("genera una carpeta por Worker y robots.txt con los tres sitemaps", () => {
+    const opciones = prepararVarios();
+    const resumen = ensamblar(opciones);
+    const dirGas = path.join(tmp, "dist-gas");
+    assert.deepEqual(resumen.workers.map((w) => w.dir), [opciones.dist, dirGas]);
+    assert.equal(resumen.secciones, 3);
+    assert.ok(fs.existsSync(path.join(dirGas, "es", "gas.html")));
+    assert.ok(fs.existsSync(path.join(dirGas, "es", "gas", "404.html")));
+    assert.ok(fs.existsSync(path.join(dirGas, "es", "gas", "gasolinera", "x.html")));
+    assert.ok(!fs.existsSync(path.join(dirGas, "es", "gas", "gasolinera", "x.txt")));
+    assert.ok(!fs.existsSync(path.join(dirGas, "es", "gas", "gasolinera", "x")));
+    assert.ok(!fs.existsSync(path.join(dirGas, "index.html")));
+    assert.ok(!fs.existsSync(path.join(dirGas, "robots.txt")));
+    assert.match(fs.readFileSync(path.join(dirGas, "_headers"), "utf8"), /\/es\/gas\/_next\/static\/\*/);
+    assert.ok(!fs.existsSync(path.join(opciones.dist, "es", "gas")));
+    const robots = fs.readFileSync(path.join(opciones.dist, "robots.txt"), "utf8");
+    for (const ruta of ["/es/multas", "/es/impuestos", "/es/gas"]) {
+      assert.ok(robots.includes(`Sitemap: ${ORIGEN}${ruta}/sitemap.xml`), ruta);
+    }
+    assert.match(fs.readFileSync(path.join(opciones.dist, "index.html"), "utf8"), /href="\/es\/gas"/);
+  });
+
+  test("solo con un Worker propio no toca dist", () => {
+    const opciones = prepararVarios();
+    ensamblar(opciones);
+    escribir(path.join(opciones.dist, "marca.txt"), "intacto");
+    escribir(path.join(tmp, "dist-gas", "viejo.txt"), "debe desaparecer");
+    const resumen = ensamblar({ ...opciones, solo: "/es/gas" });
+    assert.equal(resumen.workers.length, 1);
+    assert.equal(resumen.secciones, 1);
+    assert.equal(resumen.adsTxt, false);
+    assert.ok(fs.existsSync(path.join(opciones.dist, "marca.txt")));
+    assert.ok(!fs.existsSync(path.join(tmp, "dist-gas", "viejo.txt")));
+  });
+
+  test("solo con una sección del Worker principal regenera dist y no el otro", () => {
+    const opciones = prepararVarios();
+    ensamblar(opciones);
+    escribir(path.join(tmp, "dist-gas", "marca.txt"), "intacto");
+    escribir(path.join(opciones.dist, "viejo.txt"), "debe desaparecer");
+    ensamblar({ ...opciones, solo: "/es/multas" });
+    assert.ok(fs.existsSync(path.join(tmp, "dist-gas", "marca.txt")));
+    assert.ok(!fs.existsSync(path.join(opciones.dist, "viejo.txt")));
+    assert.ok(fs.existsSync(path.join(opciones.dist, "es", "impuestos", "index.html")));
+  });
+
+  test("solo con una ruta desconocida da error", () => {
+    assert.throws(() => ensamblar({ ...prepararVarios(), solo: "/es/nada" }), /\/es\/nada/);
+  });
+
+  test("sin compilar la sección propia da un error que dice cuál y no vacía nada", () => {
+    const opciones = prepararVarios();
+    escribir(path.join(opciones.dist, "previo.txt"), "debe seguir");
+    fs.rmSync(path.join(tmp, "gas", "out", "index.html"));
+    assert.throws(() => ensamblar(opciones), /Falta compilar \/es\/gas/);
+    assert.ok(fs.existsSync(path.join(opciones.dist, "previo.txt")));
+  });
+
+  test("comprueba los límites de cada carpeta", () => {
+    const opciones = prepararVarios();
+    escribir(path.join(tmp, "gas", "out", "grande.bin"), "x".repeat(BYTES_SOBRE_LIMITE));
+    assert.throws(() => ensamblar(opciones), /grande\.bin/);
   });
 });

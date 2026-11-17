@@ -1,10 +1,9 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DIR_SALIDA, ensamblar, leerSecciones, normalizarOrigen, textoAdsTxt } from "../lib/ensamblado.mjs";
+import { DIR_SALIDA, ensamblar, leerOpcionSolo, leerProduccion, leerSecciones, textoAdsTxt } from "../lib/ensamblado.mjs";
 
 const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const ORIGEN_POR_DEFECTO = "https://ododex.com";
 const FLAG_SIN_COMPILAR = "--sin-compilar";
 const CODIGO_ERROR = 1;
 
@@ -28,7 +27,9 @@ function compilarSeccion(seccion, origen, clienteAdsense) {
 }
 
 function mostrarResumen(resumen) {
-  console.log(`Ficheros: ${resumen.ficheros}`);
+  for (const { dir, ficheros } of resumen.workers) {
+    console.log(`${path.basename(dir)}: ${ficheros} ficheros`);
+  }
   console.log(`Secciones: ${resumen.secciones}`);
   console.log(`ads.txt: ${resumen.adsTxt ? "generado" : "no generado"}`);
 }
@@ -40,10 +41,21 @@ function avisarAdsenseVacio(sinCompilar) {
   console.warn(`Aviso: ADSENSE_CLIENT está vacía. ${consecuencia}`);
 }
 
+function seleccionarParaCompilar(secciones, solo) {
+  if (solo === undefined) {
+    return secciones;
+  }
+  const seleccionadas = secciones.filter((seccion) => seccion.ruta === solo);
+  if (seleccionadas.length === 0) {
+    throw new Error(`La sección "${solo}" no está en config/secciones.json.`);
+  }
+  return seleccionadas;
+}
+
 function construir() {
   const sinCompilar = process.argv.includes(FLAG_SIN_COMPILAR);
-  const origen = normalizarOrigen(process.env.SITE_ORIGIN || ORIGEN_POR_DEFECTO);
-  const clienteAdsense = process.env.ADSENSE_CLIENT || "";
+  const solo = leerOpcionSolo(process.argv);
+  const { origen, clienteAdsense } = leerProduccion(path.join(DIR_BASE, "config", "produccion.json"));
   const secciones = leerSecciones(path.join(DIR_BASE, "config", "secciones.json"));
 
   // Se valida antes de compilar para no perder minutos de compilación por un valor mal escrito.
@@ -52,7 +64,7 @@ function construir() {
     avisarAdsenseVacio(sinCompilar);
   }
   if (!sinCompilar) {
-    secciones.forEach((seccion) => compilarSeccion(seccion, origen, clienteAdsense));
+    seleccionarParaCompilar(secciones, solo).forEach((seccion) => compilarSeccion(seccion, origen, clienteAdsense));
   }
   mostrarResumen(
     ensamblar({
@@ -62,6 +74,7 @@ function construir() {
       dist: path.join(DIR_BASE, DIR_SALIDA),
       origen,
       clienteAdsense,
+      solo,
     }),
   );
 }

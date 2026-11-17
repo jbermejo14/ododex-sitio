@@ -9,6 +9,7 @@ Publica `ododex.com` en Cloudflare como un único sitio estático (Worker `odode
 |---|---|
 | `/es/multas` | `../multas-dgt` |
 | `/es/impuestos` | `../calculadora-impuestos` |
+| `/es/gasolineras` | `../gasolineras` (Worker propio) |
 
 Las secciones están en `config/secciones.json`. El diseño completo está en [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
@@ -69,7 +70,22 @@ Sirve `dist/` en `http://127.0.0.1:8788` (variable `PORT` para cambiarlo), con l
 npm run deploy
 ```
 
-Sube `dist/` al Worker `ododex` con `wrangler deploy` (versión fijada en `package.json`; configuración en `wrangler.jsonc`). Solo sube los ficheros que han cambiado. La primera vez hay que iniciar sesión con `npx wrangler login`.
+Sube cada carpeta de salida a su Worker con `wrangler deploy` (versión fijada en `package.json`; configuración en `wrangler.jsonc` y `wrangler.<nombre>.jsonc`). Solo sube los ficheros que han cambiado. La primera vez hay que iniciar sesión con `npx wrangler login`.
+
+### Varios Workers y páginas solo HTML
+
+Gasolineras (`/es/gasolineras`) tiene unas 15 000 páginas y el plan gratuito admite 20 000 ficheros por Worker, así que va en su propio Worker (`ododex-gasolineras`) con su carpeta de salida (`dist-gasolineras/`) y su configuración (`wrangler.gasolineras.jsonc`). Se indica en `config/secciones.json` con dos campos opcionales:
+
+- `worker`: nombre del Worker propio (`ododex-<nombre>`). Sin él, la sección va al Worker principal.
+- `paginasSoloHtml`: patrones de página, relativos a la sección y sin `.html` (`gasolinera/*`, `provincia/*/*`; `*` vale por un segmento). De esas páginas solo se publica el HTML: se quitan sus datos RSC (`<página>.txt` y `<página>/`).
+
+`npm run build` genera `dist/` (raíz, portada, `robots.txt` con los sitemaps de todas las secciones y las secciones del Worker principal) y una carpeta `dist-<nombre>/` por Worker propio. `npm run deploy` despliega todos los Workers; la configuración de wrangler de cada Worker propio debe llamarse `wrangler.<nombre>.jsonc`. `npm run preview` sirve `dist/` y, bajo la ruta de cada sección con Worker propio, su carpeta, como quedará con las routes.
+
+El origen y AdSense por defecto están en `config/produccion.json`. `SITE_ORIGIN` y `ADSENSE_CLIENT` tienen prioridad si no están vacías.
+
+### Actualizar solo gasolineras
+
+Los precios cambian a diario. Haz doble clic en `Actualizar gasolineras.bat` (o ejecuta `npm run actualizar:gasolineras`): compila solo `/es/gasolineras`, regenera solo `dist-gasolineras/` y despliega solo `ododex-gasolineras`. No toca el Worker principal. Las opciones `--solo /es/gasolineras` de `scripts/construir.mjs` y `scripts/desplegar.mjs` permiten hacer lo mismo con otra sección. No lo ejecutes si no quieres publicar.
 
 ### Pruebas
 
@@ -89,6 +105,7 @@ Sin red. Cubren el ensamblado (secciones, `robots.txt`, `ads.txt`, `_headers`, p
 4. **Sin uso.** (Antes era el proyecto de Pages; ya no aplica.)
 5. **Dominio personalizado.** Cuando el dominio esté activo en Cloudflare: "Workers & Pages" → `ododex` → "Settings" → "Domains & Routes" → "Add" → "Custom domain": `ododex.com` y después `www.ododex.com`. Cloudflare crea los registros DNS. Después puedes desactivar ahí mismo la URL `*.workers.dev`, que incluye el nombre de tu cuenta.
 6. **Redirección de www.** En el dominio `ododex.com` → "Rules" → "Redirect Rules", crea una regla: si el host es `www.ododex.com`, redirige con 301 a `https://ododex.com` conservando la ruta y la consulta.
+   Para gasolineras: añade a `wrangler.gasolineras.jsonc` `"routes": [{ "pattern": "ododex.com/es/gasolineras*", "zone_name": "ododex.com" }]` y vuelve a desplegar con `npm run deploy`. Las routes se ejecutan antes que el dominio personalizado del Worker principal. Hasta entonces, gasolineras se prueba en la URL `*.workers.dev` de `ododex-gasolineras`, bajo `/es/gasolineras`.
 7. **Comprobación tras el primer despliegue:**
    - `https://ododex.com/es/multas` carga sin redirección a `/es/multas/` (`curl -I`, estado 200).
    - Navegar entre páginas no deja errores 404 en la consola del navegador.

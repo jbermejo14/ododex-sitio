@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DIR_SALIDA } from "../lib/ensamblado.mjs";
+import { DIR_SALIDA, dirSalidaDeWorker, leerSecciones } from "../lib/ensamblado.mjs";
 import { crearServidor } from "../lib/servidorLocal.mjs";
 
-const DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", DIR_SALIDA);
+const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const DIST = path.join(DIR_BASE, DIR_SALIDA);
 const PUERTO_POR_DEFECTO = 8788;
 const PUERTO_MINIMO = 1;
 const PUERTO_MAXIMO = 65535;
@@ -24,12 +25,26 @@ function leerPuerto() {
   return puerto;
 }
 
+function leerMontajes() {
+  const secciones = leerSecciones(path.join(DIR_BASE, "config", "secciones.json"));
+  return secciones
+    .filter((seccion) => seccion.worker !== undefined)
+    .map((seccion) => ({ prefijo: seccion.ruta, dir: path.join(DIR_BASE, dirSalidaDeWorker(seccion.worker)) }))
+    .filter(({ prefijo, dir }) => {
+      const existe = fs.existsSync(dir);
+      if (!existe) {
+        console.warn(`Aviso: no existe ${dir}; ${prefijo} dará 404. Ejecuta npm run build.`);
+      }
+      return existe;
+    });
+}
+
 if (!fs.existsSync(DIST)) {
   fallar(`no existe ${DIST}. Ejecuta npm run build antes de previsualizar.`);
 }
 
 const puerto = leerPuerto();
-const servidor = crearServidor(DIST);
+const servidor = crearServidor(DIST, leerMontajes());
 
 servidor.on("error", (error) => {
   fallar(`no se pudo escuchar en el puerto ${puerto} (${error.message}). Cambia PORT o libera el puerto.`);

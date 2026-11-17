@@ -10,5 +10,13 @@
     "proyecto": "../calculadora-impuestos",
     "nombre": "Impuestos de vehículos",
     "descripcion": "Calcula el impuesto de matriculación y el ITP de coches de segunda mano."
+  },
+  {
+    "ruta": "/es/gasolineras",
+    "proyecto": "../gasolineras",
+    "nombre": "Gasolineras",
+    "descripcion": "Precio de la gasolina y el diésel hoy en cada gasolinera de España.",
+    "worker": "ododex-gasolineras",
+    "paginasSoloHtml": ["gasolinera/*", "provincia/*/*"]
   }
 ]

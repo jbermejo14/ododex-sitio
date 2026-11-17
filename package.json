@@ -6,7 +6,8 @@
     "build": "node scripts/construir.mjs",
     "build:sin-compilar": "node scripts/construir.mjs --sin-compilar",
     "preview": "node scripts/previsualizar.mjs",
-    "deploy": "wrangler deploy",
+    "deploy": "node scripts/desplegar.mjs",
+    "actualizar:gasolineras": "node scripts/construir.mjs --solo /es/gasolineras && node scripts/desplegar.mjs --solo /es/gasolineras",
     "test": "node --test \"tests/**/*.test.mjs\""
   },
   "devDependencies": {

@@ -171,3 +171,39 @@ describe("crearServidor", () => {
     assert.equal(respuesta.status, 405);
   });
 });
+
+describe("crearServidor con montajes", () => {
+  let servidor;
+  let base;
+
+  before(async () => {
+    const dirMontaje = path.join(tmp, "dist-gas");
+    fs.mkdirSync(path.join(dirMontaje, "es", "gas"), { recursive: true });
+    fs.writeFileSync(path.join(dirMontaje, "es", "gas.html"), "gas");
+    fs.writeFileSync(path.join(dirMontaje, "es", "gas", "404.html"), "404 gas");
+    servidor = crearServidor(dist, [{ prefijo: "/es/gas", dir: dirMontaje }]);
+    await new Promise((resolver) => servidor.listen(0, "127.0.0.1", resolver));
+    base = `http://127.0.0.1:${servidor.address().port}`;
+  });
+
+  after(async () => {
+    await new Promise((resolver) => servidor.close(resolver));
+  });
+
+  test("sirve bajo el prefijo desde la carpeta del montaje", async () => {
+    const respuesta = await fetch(`${base}/es/gas`);
+    assert.equal(respuesta.status, 200);
+    assert.equal(await respuesta.text(), "gas");
+  });
+
+  test("una ruta inexistente bajo el prefijo da la 404 del montaje", async () => {
+    const respuesta = await fetch(`${base}/es/gas/no-existe`);
+    assert.equal(respuesta.status, 404);
+    assert.equal(await respuesta.text(), "404 gas");
+  });
+
+  test("fuera del prefijo sigue sirviendo dist, también con un prefijo parecido", async () => {
+    assert.equal(await (await fetch(`${base}/es/multas`)).text(), "multas");
+    assert.equal((await fetch(`${base}/es/gasolina`)).status, 404);
+  });
+});
