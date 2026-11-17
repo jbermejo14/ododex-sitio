@@ -18,5 +18,28 @@
     "descripcion": "Precio de la gasolina y el diésel hoy en cada gasolinera de España.",
     "worker": "ododex-gasolineras",
     "paginasSoloHtml": ["gasolinera/*", "provincia/*/*"]
+  },
+  {
+    "ruta": "/es/llamadas-revision",
+    "proyecto": "../recalls-web",
+    "nombre": "Llamadas a revisión",
+    "descripcion": "Campañas de llamada a revisión de coches y motos publicadas en Safety Gate, por marca y modelo.",
+    "worker": "ododex-llamadas-revision",
+    "entorno": { "RECALLS_LANG": "es" },
+    "exportacion": "out-es",
+    "scriptBuild": "build:es",
+    "paginasSoloHtml": ["campana/*", "marca/*/*"]
+  },
+  {
+    "ruta": "/en/recalls",
+    "proyecto": "../recalls-web",
+    "nombre": "Vehicle recalls",
+    "descripcion": "EU Safety Gate vehicle recall campaigns by make and model.",
+    "worker": "ododex-recalls",
+    "entorno": { "RECALLS_LANG": "en" },
+    "exportacion": "out-en",
+    "scriptBuild": "build:en",
+    "paginasSoloHtml": ["campana/*", "marca/*/*"],
+    "enPortada": false
   }
 ]

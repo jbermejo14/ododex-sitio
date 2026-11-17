@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de llamadas a revisión (español): cada idioma de recalls-web se publica en su Worker.
+  // La route lleva /es/llamadas-revision* a este Worker; se ejecuta antes que el dominio
+  // personalizado del Worker principal (wrangler.jsonc).
+  "name": "ododex-llamadas-revision",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/llamadas-revision*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-llamadas-revision",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

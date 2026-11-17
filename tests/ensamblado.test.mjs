@@ -18,6 +18,8 @@ import {
   quitarRscDePaginas,
   leerProduccion,
   leerOpcionSolo,
+  comandoCompilacion,
+  dirExportacionDeSeccion,
 } from "../lib/ensamblado.mjs";
 
 const SECCIONES = [
@@ -518,5 +520,101 @@ describe("ensamblar con varios Workers", () => {
     const opciones = prepararVarios();
     escribir(path.join(tmp, "gas", "out", "grande.bin"), "x".repeat(BYTES_SOBRE_LIMITE));
     assert.throws(() => ensamblar(opciones), /grande\.bin/);
+  });
+});
+
+describe("leerSecciones con entorno, exportacion, scriptBuild y enPortada", () => {
+  const base = { ruta: "/es/r", proyecto: "r", nombre: "R", descripcion: "D" };
+
+  test("acepta valores válidos", () => {
+    const extra = { entorno: { RECALLS_LANG: "es", _X1: "" }, exportacion: "out-es", scriptBuild: "build:es", enPortada: false };
+    const seccion = leerSecciones(escribirConfig([{ ...base, ...extra }]))[0];
+    assert.equal(seccion.exportacion, "out-es");
+    assert.equal(seccion.enPortada, false);
+  });
+
+  for (const [descripcion, extra, mensaje] of [
+    ["entorno que no es objeto", { entorno: "A=1" }, /entorno/],
+    ["entorno que es un array", { entorno: ["A"] }, /entorno/],
+    ["clave de entorno en minúsculas", { entorno: { lang: "es" } }, /lang/],
+    ["valor de entorno con espacio", { entorno: { LANG_X: "a b" } }, /LANG_X/],
+    ["valor de entorno con carácter de shell", { entorno: { LANG_X: "a;b" } }, /LANG_X/],
+    ["valor de entorno que no es texto", { entorno: { LANG_X: 1 } }, /LANG_X/],
+    ["exportacion con mayúsculas", { exportacion: "Out" }, /exportacion/],
+    ["exportacion con barra", { exportacion: "a/b" }, /exportacion/],
+    ["scriptBuild con espacio", { scriptBuild: "build es" }, /scriptBuild/],
+    ["scriptBuild que no es texto", { scriptBuild: 3 }, /scriptBuild/],
+    ["enPortada que no es booleano", { enPortada: "no" }, /enPortada/],
+  ]) {
+    test(`rechaza ${descripcion}`, () => {
+      assert.throws(() => leerSecciones(escribirConfig([{ ...base, ...extra }])), mensaje);
+    });
+  }
+});
+
+describe("comandoCompilacion y dirExportacionDeSeccion", () => {
+  test("usa build y out por defecto", () => {
+    assert.equal(comandoCompilacion(SECCIONES[0]), "npm run build");
+    assert.equal(dirExportacionDeSeccion(SECCIONES[0]), "out");
+  });
+
+  test("usa scriptBuild y exportacion si se indican", () => {
+    const seccion = { ...SECCIONES[0], scriptBuild: "build:en", exportacion: "out-en" };
+    assert.equal(comandoCompilacion(seccion), "npm run build:en");
+    assert.equal(dirExportacionDeSeccion(seccion), "out-en");
+  });
+});
+
+describe("secciones fuera de portada y del mismo proyecto", () => {
+  const ES = {
+    ruta: "/es/rec", proyecto: "rec", nombre: "Revisiones", descripcion: "Desc es",
+    worker: "ododex-rec-es", exportacion: "out-es", scriptBuild: "build:es",
+  };
+  const EN = {
+    ruta: "/en/rec", proyecto: "rec", nombre: "Recalls", descripcion: "Desc en",
+    worker: "ododex-rec-en", exportacion: "out-en", scriptBuild: "build:en", enPortada: false,
+  };
+  const TODAS = [...SECCIONES, ES, EN];
+
+  function prepararMismoProyecto() {
+    const dirRaiz = path.join(tmp, "raiz");
+    escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    for (const seccion of SECCIONES) {
+      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), seccion.proyecto);
+    }
+    escribir(path.join(tmp, "rec", "out-es", "index.html"), "pagina es");
+    escribir(path.join(tmp, "rec", "out-en", "index.html"), "pagina en");
+    escribir(path.join(tmp, "rec", "out-en", "solo-en.html"), "x");
+    return { secciones: TODAS, dirBase: tmp, dirRaiz, dist: path.join(tmp, "dist"), origen: ORIGEN };
+  }
+
+  test("la portada omite las secciones con enPortada false", () => {
+    const portada = generarPortada(PLANTILLA, TODAS, ORIGEN);
+    assert.ok(portada.includes('href="/es/rec"'));
+    assert.ok(!portada.includes("/en/rec"));
+  });
+
+  test("robots.txt lista todas las secciones", () => {
+    const robots = textoRobots(ORIGEN, TODAS);
+    assert.ok(robots.includes(`Sitemap: ${ORIGEN}/en/rec/sitemap.xml`));
+    assert.ok(robots.includes(`Sitemap: ${ORIGEN}/es/rec/sitemap.xml`));
+  });
+
+  test("ensambla cada idioma desde su carpeta de exportación en su Worker", () => {
+    const opciones = prepararMismoProyecto();
+    ensamblar(opciones);
+    assert.equal(fs.readFileSync(path.join(tmp, "dist-rec-es", "es", "rec", "index.html"), "utf8"), "pagina es");
+    assert.equal(fs.readFileSync(path.join(tmp, "dist-rec-en", "en", "rec", "index.html"), "utf8"), "pagina en");
+    assert.ok(fs.existsSync(path.join(tmp, "dist-rec-en", "en", "rec", "solo-en.html")));
+    assert.ok(!fs.existsSync(path.join(tmp, "dist-rec-es", "es", "rec", "solo-en.html")));
+    const portada = fs.readFileSync(path.join(opciones.dist, "index.html"), "utf8");
+    assert.ok(!portada.includes("/en/rec"));
+    assert.ok(fs.readFileSync(path.join(opciones.dist, "robots.txt"), "utf8").includes("/en/rec/sitemap.xml"));
+  });
+
+  test("el error de sección sin compilar nombra su carpeta y su comando", () => {
+    const opciones = prepararMismoProyecto();
+    fs.rmSync(path.join(tmp, "rec", "out-en", "index.html"));
+    assert.throws(() => ensamblar(opciones), /Falta compilar \/en\/rec.*out-en.*npm run build:en/);
   });
 });

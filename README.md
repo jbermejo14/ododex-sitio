@@ -10,6 +10,8 @@ Publica `ododex.com` en Cloudflare como un único sitio estático (Worker `odode
 | `/es/multas` | `../multas-dgt` |
 | `/es/impuestos` | `../calculadora-impuestos` |
 | `/es/gasolineras` | `../gasolineras` (Worker propio) |
+| `/es/llamadas-revision` | `../recalls-web`, carpeta `out-es` (Worker propio) |
+| `/en/recalls` | `../recalls-web`, carpeta `out-en` (Worker propio; no sale en la portada) |
 
 Las secciones están en `config/secciones.json`. El diseño completo está en [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
@@ -82,6 +84,17 @@ Gasolineras (`/es/gasolineras`) tiene unas 15 000 páginas y el plan gratuito ad
 `npm run build` genera `dist/` (raíz, portada, `robots.txt` con los sitemaps de todas las secciones y las secciones del Worker principal) y una carpeta `dist-<nombre>/` por Worker propio. `npm run deploy` despliega todos los Workers; la configuración de wrangler de cada Worker propio debe llamarse `wrangler.<nombre>.jsonc`. `npm run preview` sirve `dist/` y, bajo la ruta de cada sección con Worker propio, su carpeta, como quedará con las routes.
 
 El origen y AdSense por defecto están en `config/produccion.json`. `SITE_ORIGIN` y `ADSENSE_CLIENT` tienen prioridad si no están vacías.
+
+### Secciones compiladas por idioma
+
+`../recalls-web` se compila dos veces, una por idioma (`RECALLS_LANG`), y cada idioma va en su Worker (`ododex-llamadas-revision` y `ododex-recalls`, con `wrangler.llamadas-revision.jsonc` y `wrangler.recalls.jsonc`). Para eso hay cuatro campos opcionales más en `config/secciones.json`:
+
+- `entorno`: variables de entorno extra para compilar la sección, sumadas a las de producción. Claves `[A-Z_][A-Z0-9_]*`; valores `[A-Za-z0-9._-]*`.
+- `exportacion`: carpeta de exportación dentro del proyecto (por defecto `out`). Dos secciones del mismo proyecto pueden usar carpetas distintas.
+- `scriptBuild`: script de npm que compila la sección (por defecto `build`; aquí `build:es` y `build:en`).
+- `enPortada`: con `false`, la sección no sale en la portada, pero su sitemap sí está en `robots.txt`.
+
+Antes de ensamblar hay que compilar `../recalls-web` (`npm run build` de este proyecto lo hace). Si falta una carpeta de exportación, el error dice qué sección y qué comando.
 
 ### Actualizar solo gasolineras
 

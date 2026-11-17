@@ -1,14 +1,14 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DIR_SALIDA, ensamblar, leerOpcionSolo, leerProduccion, leerSecciones, textoAdsTxt } from "../lib/ensamblado.mjs";
+import { DIR_SALIDA, comandoCompilacion, ensamblar, leerOpcionSolo, leerProduccion, leerSecciones, textoAdsTxt } from "../lib/ensamblado.mjs";
 
 const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FLAG_SIN_COMPILAR = "--sin-compilar";
 const CODIGO_ERROR = 1;
 
 function compilarSeccion(seccion, origen, clienteAdsense) {
-  const resultado = spawnSync("npm run build", {
+  const resultado = spawnSync(comandoCompilacion(seccion), {
     cwd: path.resolve(DIR_BASE, seccion.proyecto),
     shell: true,
     stdio: "inherit",
@@ -16,6 +16,7 @@ function compilarSeccion(seccion, origen, clienteAdsense) {
       ...process.env,
       NEXT_PUBLIC_SITE_URL: origen,
       NEXT_PUBLIC_ADSENSE_CLIENT: clienteAdsense,
+      ...seccion.entorno,
     },
   });
   if (resultado.error) {
