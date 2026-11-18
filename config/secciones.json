@@ -30,6 +30,17 @@
     "worker": "ododex-zbe"
   },
   {
+    "ruta": "/es/puntos-recarga",
+    "proyecto": "../charger-map",
+    "nombre": "Puntos de recarga",
+    "descripcion": "Mapa de los puntos de recarga para coches eléctricos de España, por provincia, municipio y operador.",
+    "worker": "ododex-puntos-recarga",
+    "paginasSoloHtml": [
+      "punto/*",
+      "provincia/*/*"
+    ]
+  },
+  {
     "ruta": "/es/llamadas-revision",
     "proyecto": "../recalls-web",
     "nombre": "Llamadas a revisión",
