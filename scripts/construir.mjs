@@ -7,7 +7,7 @@ const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const FLAG_SIN_COMPILAR = "--sin-compilar";
 const CODIGO_ERROR = 1;
 
-function compilarSeccion(seccion, origen, clienteAdsense) {
+function compilarSeccion(seccion, origen, clienteAdsense, unidadAdsense) {
   const resultado = spawnSync(comandoCompilacion(seccion), {
     cwd: path.resolve(DIR_BASE, seccion.proyecto),
     shell: true,
@@ -16,6 +16,7 @@ function compilarSeccion(seccion, origen, clienteAdsense) {
       ...process.env,
       NEXT_PUBLIC_SITE_URL: origen,
       NEXT_PUBLIC_ADSENSE_CLIENT: clienteAdsense,
+      NEXT_PUBLIC_ADSENSE_SLOT: unidadAdsense,
       ...seccion.entorno,
     },
   });
@@ -56,7 +57,7 @@ function seleccionarParaCompilar(secciones, solo) {
 function construir() {
   const sinCompilar = process.argv.includes(FLAG_SIN_COMPILAR);
   const solo = leerOpcionSolo(process.argv);
-  const { origen, clienteAdsense } = leerProduccion(path.join(DIR_BASE, "config", "produccion.json"));
+  const { origen, clienteAdsense, unidadAdsense } = leerProduccion(path.join(DIR_BASE, "config", "produccion.json"));
   const secciones = leerSecciones(path.join(DIR_BASE, "config", "secciones.json"));
 
   // Se valida antes de compilar para no perder minutos de compilación por un valor mal escrito.
@@ -65,7 +66,7 @@ function construir() {
     avisarAdsenseVacio(sinCompilar);
   }
   if (!sinCompilar) {
-    seleccionarParaCompilar(secciones, solo).forEach((seccion) => compilarSeccion(seccion, origen, clienteAdsense));
+    seleccionarParaCompilar(secciones, solo).forEach((seccion) => compilarSeccion(seccion, origen, clienteAdsense, unidadAdsense));
   }
   mostrarResumen(
     ensamblar({

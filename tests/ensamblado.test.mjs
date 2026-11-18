@@ -378,23 +378,37 @@ describe("leerProduccion", () => {
   }
 
   test("sin variables de entorno usa el fichero", () => {
-    const fichero = escribirProduccion({ origen: "https://ododex.com/", clienteAdsense: "" });
-    assert.deepEqual(leerProduccion(fichero, {}), { origen: "https://ododex.com", clienteAdsense: "" });
+    const fichero = escribirProduccion({ origen: "https://ododex.com/", clienteAdsense: "", unidadAdsense: "" });
+    assert.deepEqual(leerProduccion(fichero, {}), { origen: "https://ododex.com", clienteAdsense: "", unidadAdsense: "" });
   });
 
   test("las variables de entorno tienen prioridad", () => {
-    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "" });
-    const entorno = { SITE_ORIGIN: "http://localhost:3000", ADSENSE_CLIENT: "pub-1234567890123456" };
+    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "", unidadAdsense: "1111111111" });
+    const entorno = { SITE_ORIGIN: "http://localhost:3000", ADSENSE_CLIENT: "pub-1234567890123456", ADSENSE_SLOT: "2222222222" };
     assert.deepEqual(leerProduccion(fichero, entorno), {
       origen: "http://localhost:3000",
       clienteAdsense: "pub-1234567890123456",
+      unidadAdsense: "2222222222",
     });
   });
 
   test("las variables vacías no pisan el fichero", () => {
-    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "pub-1111111111111111" });
-    const resultado = leerProduccion(fichero, { SITE_ORIGIN: "", ADSENSE_CLIENT: "" });
+    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "pub-1111111111111111", unidadAdsense: "3333333333" });
+    const resultado = leerProduccion(fichero, { SITE_ORIGIN: "", ADSENSE_CLIENT: "", ADSENSE_SLOT: "" });
     assert.equal(resultado.clienteAdsense, "pub-1111111111111111");
+    assert.equal(resultado.unidadAdsense, "3333333333");
+  });
+
+  test("lanza Error si la unidad (fichero o entorno) no tiene 10 dígitos", () => {
+    const malaEnFichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "", unidadAdsense: "123" });
+    assert.throws(() => leerProduccion(malaEnFichero, {}), /Unidad de AdSense no válida.*data-ad-slot/);
+    const vacia = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "", unidadAdsense: "" });
+    assert.throws(() => leerProduccion(vacia, { ADSENSE_SLOT: "12345678901" }), /Unidad de AdSense no válida/);
+  });
+
+  test("lanza Error si falta unidadAdsense", () => {
+    const fichero = escribirProduccion({ origen: "https://ododex.com", clienteAdsense: "" });
+    assert.throws(() => leerProduccion(fichero, {}), /unidadAdsense/);
   });
 
   test("lanza Error si falta un campo", () => {

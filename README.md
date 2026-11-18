@@ -49,6 +49,7 @@ $env:ADSENSE_CLIENT = "ca-pub-XXXXXXXXXXXXXXXX"; npm run build
 |---|---|---|
 | `SITE_ORIGIN` | Origen del sitio. Se pasa a cada web como `NEXT_PUBLIC_SITE_URL` (canonical, sitemap) y se usa en `robots.txt` y la portada | `https://ododex.com` |
 | `ADSENSE_CLIENT` | Editor de AdSense (`ca-pub-` y 16 dígitos). Se pasa a cada web como `NEXT_PUBLIC_ADSENSE_CLIENT` y genera `ads.txt`. Vacía: sin AdSense ni `ads.txt` | vacía |
+| `ADSENSE_SLOT` | Unidad de anuncio display adaptable (`data-ad-slot`, 10 dígitos). Se pasa a cada web como `NEXT_PUBLIC_ADSENSE_SLOT`. Vacía: las webs no pintan bloques de anuncio | vacía |
 
 Si las secciones ya están compiladas y solo quieres volver a ensamblar:
 
@@ -83,7 +84,7 @@ Gasolineras (`/es/gasolineras`) tiene unas 15 000 páginas y el plan gratuito ad
 
 `npm run build` genera `dist/` (raíz, portada, `robots.txt` con los sitemaps de todas las secciones y las secciones del Worker principal) y una carpeta `dist-<nombre>/` por Worker propio. `npm run deploy` despliega todos los Workers; la configuración de wrangler de cada Worker propio debe llamarse `wrangler.<nombre>.jsonc`. `npm run preview` sirve `dist/` y, bajo la ruta de cada sección con Worker propio, su carpeta, como quedará con las routes.
 
-El origen y AdSense por defecto están en `config/produccion.json`. `SITE_ORIGIN` y `ADSENSE_CLIENT` tienen prioridad si no están vacías.
+El origen, el cliente y la unidad de AdSense por defecto están en `config/produccion.json` (`origen`, `clienteAdsense`, `unidadAdsense`). `SITE_ORIGIN`, `ADSENSE_CLIENT` y `ADSENSE_SLOT` tienen prioridad si no están vacías.
 
 ### Secciones compiladas por idioma
 
@@ -126,6 +127,16 @@ Sin red. Cubren el ensamblado (secciones, `robots.txt`, `ads.txt`, `_headers`, p
    - `https://ododex.com/no-existe` y `https://ododex.com/es/multas/no-existe` devuelven 404 con su página.
 8. **Search Console.** Añade la propiedad de dominio `ododex.com`. La verificación por DNS se hace en Cloudflare. Envía los sitemaps de cada sección: `https://ododex.com/es/multas/sitemap.xml` y `https://ododex.com/es/impuestos/sitemap.xml`.
 9. **AdSense.** Da de alta `ododex.com`, activa los anuncios automáticos y crea el mensaje de consentimiento de la UE en "Privacidad y mensajes". Después recompila con `ADSENSE_CLIENT` y vuelve a desplegar para que se generen el script y `ads.txt`.
+
+### Bloques de anuncio manuales (AdSense)
+
+Las webs colocan bloques de anuncio en posiciones fijas (ver la sección "Anuncios" del `ARCHITECTURE.md` de cada web). Todos usan la misma unidad:
+
+1. En AdSense: Anuncios, Por unidad de anuncio, Anuncios display, crea una unidad **adaptable** (nombre sugerido: "ododex-display").
+2. Copia el `data-ad-slot` (10 dígitos) del código que muestra.
+3. Ponlo en `unidadAdsense` de `config/produccion.json` (o en `ADSENSE_SLOT` al compilar) y recompila con `npm run build`.
+
+Sin unidad (o sin cliente) no se pinta ningún bloque. Conviene **desactivar el ancla** en Anuncios, Anuncios automáticos, formatos de anuncio: los bloques manuales la sustituyen.
 
 ---
 
