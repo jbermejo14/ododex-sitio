@@ -20,6 +20,7 @@ import {
   leerOpcionSolo,
   comandoCompilacion,
   dirExportacionDeSeccion,
+  insertarAdsense,
 } from "../lib/ensamblado.mjs";
 
 const SECCIONES = [
@@ -616,5 +617,28 @@ describe("secciones fuera de portada y del mismo proyecto", () => {
     const opciones = prepararMismoProyecto();
     fs.rmSync(path.join(tmp, "rec", "out-en", "index.html"));
     assert.throws(() => ensamblar(opciones), /Falta compilar \/en\/rec.*out-en.*npm run build:en/);
+  });
+});
+
+describe("insertarAdsense", () => {
+  const HTML = "<head><!-- ADSENSE --></head>";
+
+  test("pone el script de AdSense con el cliente ca-pub", () => {
+    const html = insertarAdsense(HTML, "ca-pub-1234567890123456");
+    assert.match(html, /adsbygoogle\.js\?client=ca-pub-1234567890123456" crossorigin="anonymous"><\/script>/);
+    assert.doesNotMatch(html, /<!-- ADSENSE -->/);
+  });
+
+  test("acepta el formato pub- y lo convierte a ca-pub-", () => {
+    assert.match(insertarAdsense(HTML, "pub-1234567890123456"), /client=ca-pub-1234567890123456/);
+  });
+
+  test("sin cliente quita el marcador y no añade nada", () => {
+    assert.equal(insertarAdsense(HTML, ""), "<head></head>");
+    assert.equal(insertarAdsense(HTML, undefined), "<head></head>");
+  });
+
+  test("con un cliente inválido lanza error", () => {
+    assert.throws(() => insertarAdsense(HTML, "ca-pub-123"), /no válido/);
   });
 });
