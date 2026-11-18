@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de las Zonas de Bajas Emisiones (deja margen de ficheros al Worker principal).
+  // La route lleva /es/zbe* a este Worker; se ejecuta antes que el dominio
+  // personalizado del Worker principal (wrangler.jsonc).
+  "name": "ododex-zbe",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/zbe*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-zbe",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

@@ -17,7 +17,17 @@
     "nombre": "Gasolineras",
     "descripcion": "Precio de la gasolina y el diésel hoy en cada gasolinera de España.",
     "worker": "ododex-gasolineras",
-    "paginasSoloHtml": ["gasolinera/*", "provincia/*/*"]
+    "paginasSoloHtml": [
+      "gasolinera/*",
+      "provincia/*/*"
+    ]
+  },
+  {
+    "ruta": "/es/zbe",
+    "proyecto": "../zbe-map",
+    "nombre": "Zonas de bajas emisiones",
+    "descripcion": "Comprueba si tu coche puede entrar en las ZBE de cada ciudad según su etiqueta de la DGT.",
+    "worker": "ododex-zbe"
   },
   {
     "ruta": "/es/llamadas-revision",
@@ -25,10 +35,15 @@
     "nombre": "Llamadas a revisión",
     "descripcion": "Campañas de llamada a revisión de coches y motos publicadas en Safety Gate, por marca y modelo.",
     "worker": "ododex-llamadas-revision",
-    "entorno": { "RECALLS_LANG": "es" },
+    "entorno": {
+      "RECALLS_LANG": "es"
+    },
     "exportacion": "out-es",
     "scriptBuild": "build:es",
-    "paginasSoloHtml": ["campana/*", "marca/*/*"]
+    "paginasSoloHtml": [
+      "campana/*",
+      "marca/*/*"
+    ]
   },
   {
     "ruta": "/en/recalls",
@@ -36,10 +51,15 @@
     "nombre": "Vehicle recalls",
     "descripcion": "EU Safety Gate vehicle recall campaigns by make and model.",
     "worker": "ododex-recalls",
-    "entorno": { "RECALLS_LANG": "en" },
+    "entorno": {
+      "RECALLS_LANG": "en"
+    },
     "exportacion": "out-en",
     "scriptBuild": "build:en",
-    "paginasSoloHtml": ["campana/*", "marca/*/*"],
+    "paginasSoloHtml": [
+      "campana/*",
+      "marca/*/*"
+    ],
     "enPortada": false
   }
 ]
