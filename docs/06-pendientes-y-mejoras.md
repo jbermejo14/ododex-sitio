@@ -2,9 +2,9 @@
 
 ## Riesgos abiertos (prioridad alta)
 
-### 1. Trabajo sin copia en GitHub
+### 1. Trabajo sin copia en GitHub (resuelto el 18/11/2026)
 
-A 18/11/2026, commits locales sin subir:
+**Resuelto:** el 18/11/2026 se subieron todas las ramas, y `ododex-sitio` tiene ahora remoto en `github.com/jbermejo14/ododex-sitio` (público). Queda pendiente fusionar las ramas en `main`. Al terminar cada tarea hay que hacer `git push`. Situación antes de subirlo:
 
 | Proyecto | Rama | Commits sin subir |
 |---|---|---|
