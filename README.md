@@ -1,5 +1,7 @@
 # ododex-sitio
 
+> **Documentación general de la red** (estado, arquitectura, operaciones, pendientes y hoja de ruta): [`docs/README.md`](docs/README.md).
+
 Publica `ododex.com` en Cloudflare como un único sitio estático (Worker `ododex` con recursos estáticos; Cloudflare ha integrado Pages en Workers):
 
 - **Raíz** (`/`): portada de la red Ododex, `robots.txt`, `ads.txt`, `404.html` y `_headers`.

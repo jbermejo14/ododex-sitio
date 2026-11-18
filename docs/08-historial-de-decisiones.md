@@ -1,0 +1,43 @@
+# 8. Historial de decisiones
+
+Registro de las decisiones importantes, con su motivo y las alternativas descartadas. Ordenado por fecha.
+
+## 17/11/2026
+
+| Decisión | Motivo | Descartado |
+|---|---|---|
+| Marca **Ododex**, estilo de calculadora-impuestos para toda la red | Una marca común da confianza y permite enlazar entre webs | Un nombre distinto por web |
+| **Un solo dominio** con rutas `/es/<sección>` | Concentra la autoridad SEO; un solo AdSense y un solo `ads.txt` | Subdominios o dominios por web |
+| Dominio comprado en **Arsys**, DNS movido a **Cloudflare** | Ya estaba comprado; Cloudflare da DNS, HTTPS y hosting gratis | Hosting de Arsys |
+| **Cloudflare Workers con recursos estáticos** (no Pages) | Cloudflare integró Pages en Workers; `wrangler pages project create` acabó creando un Worker | Pages con subida manual o conexión a GitHub (el titular no puede ejecutar comandos ni crear carpetas en el panel) |
+| Todo **estático** (`output: 'export'`), sin API | Gratis e ilimitado; sin servidor que mantener | Plan de pago de Workers (5 $/mes) |
+| **Varios Workers** con routes de zona | Límite de 20 000 ficheros por Worker en el plan gratuito | Un Worker único o el plan de pago |
+| Páginas de detalle **solo HTML** | Reduce a un tercio los ficheros de las secciones grandes | Menos páginas (pierde SEO) |
+| `workers_dev: false` | Evita contenido duplicado en `*.workers.dev` | — |
+| Fichas de radar de multas con **noindex** | Contenido fino; podían perjudicar al dominio | Indexarlas |
+| Gasolineras actualizada **a mano cada día** con un acceso directo | Gratis; el titular lo acepta | Servidor de pago con actualización automática |
+| Descarga de MITECO **una vez por compilación** | Cada worker de Next la descargaba (lento y con fallos) | ISR o peticiones en la compilación |
+| `next build --webpack` y Tailwind en WASM | Windows Application Control bloquea los binarios nativos | Turbopack |
+| Llamadas a revisión en **español e inglés** (dos compilaciones) | Los datos son europeos; el inglés abre otro público | Solo español |
+| Textos de riesgo de Safety Gate en **su idioma original** | Traducirlos podría inventar o desvirtuar información de seguridad | Traducción automática |
+| CARTO fuera, **OSM y Esri** | CARTO empezó a exigir clave de API | Pagar CARTO |
+
+## 18/11/2026
+
+| Decisión | Motivo | Descartado |
+|---|---|---|
+| **AdSense** en toda la red (`ca-pub-2749781881817715`) | Monetización base | — |
+| Script de AdSense también en la **portada y la 404 de la raíz** | Google verifica el sitio en la portada | Solo en las secciones |
+| **Bloques manuales** (`AdSlot`, unidad 8745518895), de 1 a 3 por página | Los automáticos solo ponían el ancla (0 in-page) | Solo anuncios automáticos |
+| **Sin anuncio ancla en móvil** | Al titular le parece abusivo | Ancla en todos los dispositivos |
+| Bloques de afiliado **ocultos sin código** (se quita "Tasación" en ZBE) | No mostrar huecos vacíos ni enlaces sin comisión | Bloques de relleno |
+| ZBE: **sin vehículo por defecto** | Un Audi A4 preseleccionado confundía | Valor por defecto |
+| ZBE: selector de **marca, combustible y año** | La etiqueta depende del combustible y la fecha, no del modelo; la lista de modelos era incompleta (solo el Serie 3 en BMW) | Catálogo completo de modelos |
+| ZBE: **matrícula solo como atajo del año**; pregunta el combustible solo si es ambiguo | No hay API gratuita de matrículas; el titular no quiere enlazar a la DGT | API de pago o enlace a la sede de la DGT |
+| ZBE: `/etiqueta-dgt` como **calculadora** | El enlace del menú llevaba a un caso fijo (gasolina de 2018) sin sentido | — |
+| ZBE: quitar GeoJSON y las ubicaciones fijas de Zaragoza y Huesca; añadir "Mi ubicación" | Botones de desarrollo sin valor para el usuario | — |
+| ZBE: selector de **varias ciudades** (hasta 4) | Petición del titular para comparar | — |
+| Domicilio del titular en el aviso legal (en `config/titular.json`) | Lo exige la LSSI | — |
+| Siguiente web: **puntos de recarga** (charger-map) | Ya tenía datos completos (RIPREE) y encaja con ZBE | vehicle-stats (menos dinero), UK (bloqueadas) |
+| Puntos de recarga: `mapa.json` compacto (menos de 1,5 MB) | El mapa nacional necesita todos los puntos sin API | Peticiones a una API |
+| Documentación central en `ododex-sitio/docs` | Poder continuar desde otra sesión o tras exportar | — |
