@@ -82,6 +82,20 @@ Ninguna página tiene `og:image`.
 
 ## P1: dar contenido propio a las páginas masivas
 
+> **Estado a 18/11/2026: gasolinera y punto de recarga, hechos y publicados.** Medidos de nuevo con el mismo script:
+>
+> | Ficha | Palabras | Enlaces internos | Parecido | Título |
+> |---|---|---|---|---|
+> | Gasolinera | 145 → **~290** | 8 → **14** | 17 % → **9 %** | 73 → **56** caracteres |
+> | Punto de recarga | 155 → **~325** | 17 → **23** | 55 % → **37 %** | 67 → **57** caracteres |
+>
+> Detalle en la sección S de `gasolineras/ARCHITECTURE.md` y en la 5 de `charger-map/ARCHITECTURE.md`.
+>
+> **Pendiente:**
+> - el texto "menos de 100 m" de gasolineras (commit `0cfd12e`) se publicará con la próxima actualización diaria;
+> - el punto final que traen algunos operadores en los datos de RIPREE ("Barcelona.") se sigue mostrando;
+> - quedan ZBE por ciudad y etiqueta, llamadas a revisión y radares.
+
 La regla para cada ficha es que tenga al menos una cosa útil que no esté en ninguna otra página, y enlaces a sus vecinas.
 
 ### Gasolinera (11 530 páginas)
