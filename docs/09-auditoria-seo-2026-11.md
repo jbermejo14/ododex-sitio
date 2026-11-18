@@ -55,6 +55,12 @@ Ninguna página tiene `og:image`.
 
 ## P0: fallos que hay que corregir ya
 
+> **Estado a 18/11/2026.**
+> - **Corregidos y publicados:** los puntos 1 y 4 (recalls-web, commit `493731b`, desplegado). La traducción afecta a riesgos, países y tipo de vehículo.
+> - **Pendiente de la próxima importación de Safety Gate:** el partido de modelos con comas dentro de paréntesis. El normalizador ya está corregido, pero hay que volver a importar los datos.
+> - **Pendiente:** unificar las marcas duplicadas (`opel-opel-vauxhall`).
+> - **Dependen del titular:** los puntos 2 y 3.
+
 1. **Plantilla sin rellenar en llamadas a revisión.**
    - **Qué se ve:** las páginas de marca y de modelo muestran literalmente "Campañas que afectan al {brand} {model}" y "Historial de campañas de {brand}". En inglés pasa lo mismo.
    - **Alcance:** unas 10 000 páginas.
