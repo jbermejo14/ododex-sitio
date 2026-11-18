@@ -435,3 +435,62 @@ Secciones nuevas:
   - ensamblado de dos secciones del mismo proyecto con distintas carpetas de exportación;
   - el comando de compilación elegido, con una función pura exportada `comandoCompilacion(seccion)` que devuelve `"npm run <scriptBuild>"`.
 - `node --check` pasa en todos los scripts.
+
+---
+
+## 8. Bloques de anuncio manuales (AdSense)
+
+### 8.1 Motivo
+
+Los anuncios automáticos de AdSense solo encuentran hueco para el **ancla** (barra fija abajo) en las webs de la red, y el titular la considera abusiva. Se colocan **bloques manuales** en posiciones elegidas, y el titular desactiva el ancla en AdSense (Anuncios → Anuncios automáticos → formatos).
+
+### 8.2 Configuración
+
+- `config/produccion.json` añade `"unidadAdsense": ""`: el identificador de una unidad de anuncio display adaptable creada por el titular en AdSense (`data-ad-slot`, 10 dígitos). La misma unidad se usa en todos los huecos de todas las secciones.
+- `leerProduccion` la devuelve como `unidadAdsense`. La variable de entorno `ADSENSE_SLOT` tiene prioridad si no está vacía. Lanza Error si no está vacía y no cumple `/^\d{10}$/`, con un mensaje que diga dónde se obtiene.
+- `construir.mjs` la pasa a cada compilación como `NEXT_PUBLIC_ADSENSE_SLOT`, junto a `NEXT_PUBLIC_ADSENSE_CLIENT`.
+
+### 8.3 Componente `AdSlot` (en cada web)
+
+Interfaz igual en las cinco webs, junto a su `AdSenseScript`:
+
+```tsx
+/** Hueco de anuncio manual. No renderiza nada si falta un cliente válido
+ *  (NEXT_PUBLIC_ADSENSE_CLIENT) o una unidad válida (NEXT_PUBLIC_ADSENSE_SLOT, 10 dígitos). */
+export function AdSlot(props: { className?: string }): JSX.Element | null;
+```
+
+- Componente de cliente. Renderiza:
+
+  ```html
+  <aside aria-label="Publicidad">
+    <span>Publicidad</span>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-…" data-ad-slot="…" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  </aside>
+  ```
+
+  - El texto "Publicidad" va pequeño y en `text-muted`; lo exige la LSSI (art. 20). En inglés, en recalls-web con `en`, es "Advertisement".
+  - Tras montar, ejecuta `(window.adsbygoogle = window.adsbygoogle || []).push({})` una sola vez por instancia (con `useEffect` y una ref que lo evite dos veces en modo estricto). Un error del `push` se registra con `console.error`, sin romper la página.
+- Reserva de espacio para evitar saltos de contenido: `min-height` de 280 px en móvil y de 250 px desde `md`, mediante una clase `.ad-slot` en `@layer components` con tokens existentes (fondo `--bg-surface`, borde `--border-color`, radio de las tarjetas). Ancho completo del contenedor y margen vertical como el de las tarjetas.
+- Sin colores fijos (las pruebas de colores de cada web lo vigilan).
+
+### 8.4 Dónde van los huecos
+
+Reglas comunes:
+
+- Como máximo **3 por página**. Nunca por encima del primer contenido útil (el titular de la página y su herramienta o resultado principal), nunca dentro de un formulario, una tabla, un mapa o una tarjeta de resultado, y nunca pegados a botones (al menos el margen de una tarjeta).
+- Las páginas legales (`/aviso-legal`, `/privacidad`, `/cookies`) y la 404 no llevan anuncios.
+- Posiciones típicas:
+  1. después del resultado o de la herramienta principal;
+  2. entre dos secciones de contenido a mitad de página;
+  3. antes del pie, al final del contenido.
+- Cada web documenta en su `ARCHITECTURE.md` (sección nueva "Anuncios") qué páginas llevan huecos y dónde.
+
+### 8.5 Criterios de aceptación (en cada web)
+
+- Prueba de `AdSlot`:
+  - sin cliente o sin unidad, o con valores inválidos, no renderiza nada;
+  - con valores válidos (cliente `ca-pub-0000000000000000`, unidad `0000000000`), renderiza `<ins class="adsbygoogle">` con `data-ad-client`, `data-ad-slot`, `data-ad-format="auto"` y el texto "Publicidad".
+- Prueba de que ninguna página legal importa `AdSlot`.
+- Prueba de que ninguna página pasa de 3 `AdSlot`, contando las apariciones en su fichero y en los componentes de página que use. Si contarlas así no es fiable, basta con un recuento en el HTML exportado durante la verificación.
+- `npm test`, `tsc` y build pasan. En el HTML exportado sin unidad configurada no hay ningún `<ins class="adsbygoogle">`.
