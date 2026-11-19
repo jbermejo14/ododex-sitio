@@ -107,6 +107,7 @@ git push -u origin <rama>
 | Síntoma | Causa | Solución |
 |---|---|---|
 | `next build` falla con un error de SWC o "Application Control policy has blocked this file" | Windows bloquea los binarios nativos de SWC y de Tailwind oxide | Compilar siempre con `next build --webpack` (ya está en los scripts). Tailwind usa `@tailwindcss/oxide-wasm32-wasi` 4.3.3 (en `optionalDependencies`). |
+| `wrangler deploy` falla con "spawn UNKNOWN" en esbuild | Smart App Control de Windows bloquea `esbuild.exe` (sin firma); visto el 19/11/2026 | `package.json` sustituye esbuild por `esbuild-wasm` con `overrides` (misma versión que pide wrangler). Si se actualiza wrangler y cambia su versión de esbuild, ajustar el override y borrar del lockfile las entradas `node_modules/esbuild` y `node_modules/@esbuild/*` antes de `npm install`, porque npm no cambia un paquete de la misma versión. |
 | Tailwind: "Cannot find native binding" | npm no instaló el paquete WASM | Copiar `multas-dgt/node_modules/@tailwindcss/oxide-wasm32-wasi` (y sus dependencias `@napi-rs`, `@emnapi` si faltan) al `node_modules/@tailwindcss/` del proyecto. |
 | Faltan clases de Tailwind en el CSS | El escáner WASM no detecta candidatos | El plugin PostCSS del proyecto (`postcss-tailwind-windows.cjs` o `postcss-inline-candidates.cjs`) los inyecta con `@source inline()`. Comprobar que está en `postcss.config.mjs`. |
 | Tailwind se queda sin memoria | Escanea ficheros de datos enormes | `@source not "../data";` en `globals.css` (como en charger-map). |

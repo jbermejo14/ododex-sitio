@@ -12,5 +12,8 @@
   },
   "devDependencies": {
     "wrangler": "4.157.0"
+  },
+  "overrides": {
+    "esbuild": "npm:esbuild-wasm@0.28.2"
   }
 }
