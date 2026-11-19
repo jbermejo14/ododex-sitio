@@ -160,7 +160,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `calculadora-impuestos` | /es/impuestos | Publicado |
 | `gasolineras` | /es/gasolineras | Publicado (actualización diaria) |
 | `zbe-map` | /es/zbe | Publicado |
-| `electrico-vs-gasolina` | /es/electrico-vs-gasolina | Lista, sin publicar |
+| `electrico-vs-gasolina` | /es/electrico-vs-gasolina | Publicado (se actualiza con gasolineras) |
 | `charger-map` | /es/puntos-recarga | Publicado |
 | `recalls-web` | /es/llamadas-revision y /en/recalls | Publicado |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
