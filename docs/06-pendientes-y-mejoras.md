@@ -51,7 +51,7 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
   - pasar los códigos.
 - [ ] **Limpieza:** borrar los ficheros sueltos de un subagente en `multas-dgt`: `.claude/launch.json`, `_t.mjs` y `_t2.mjs`.
 - [ ] **Limpieza en prix-carburants-fr:** borrar `.ed_tmp.mjs` (vacío) y `.claude/` de la raíz del proyecto.
-- [ ] **GitHub de prix-carburants-fr:** crear el repositorio y subirlo; hacer push de ododex-sitio.
+- [ ] **GitHub:** hacer push de ododex-sitio (prix-carburants-fr ya está en github.com/jbermejo14/fr-gasolineras).
 - [ ] **Revisión legal** de las mentions légales, confidentialité y cookies en francés.
 - [ ] **Diario:** pulsar "Actualizar gasolineras".
 - [ ] **Enero:** revisar si hay nuevas tablas de impuestos en el BOE.
