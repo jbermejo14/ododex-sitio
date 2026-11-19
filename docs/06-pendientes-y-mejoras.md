@@ -50,7 +50,6 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
   - darse de alta en Awin (compramostucoche, Línea Directa) y en carVertical;
   - pasar los códigos.
 - [ ] **Limpieza:** borrar los ficheros sueltos de un subagente en `multas-dgt`: `.claude/launch.json`, `_t.mjs` y `_t2.mjs`.
-- [ ] **robots.txt con /fr/prix-carburants:** redesplegar el Worker principal para que `robots.txt` incluya `https://ododex.com/fr/prix-carburants/sitemap.xml` (`npm run build -- --solo /es/multas --sin-compilar` y `npm run deploy -- --solo /es/multas`). Mientras tanto, enviar ese sitemap a mano en Search Console.
 - [ ] **Limpieza en prix-carburants-fr:** borrar `.ed_tmp.mjs` (vacío) y `.claude/` de la raíz del proyecto.
 - [ ] **GitHub de prix-carburants-fr:** crear el repositorio y subirlo; hacer push de ododex-sitio.
 - [ ] **Revisión legal** de las mentions légales, confidentialité y cookies en francés.
