@@ -12,6 +12,13 @@
     "descripcion": "Calcula el impuesto de matriculación y el ITP de coches de segunda mano."
   },
   {
+    "ruta": "/es/itv",
+    "proyecto": "../es-itv",
+    "nombre": "ITV",
+    "descripcion": "Calcula cuándo te toca la ITV, encuentra tu centro en el mapa y consulta el precio en tu comunidad.",
+    "worker": "ododex-itv"
+  },
+  {
     "ruta": "/es/gasolineras",
     "proyecto": "../gasolineras",
     "nombre": "Gasolineras",

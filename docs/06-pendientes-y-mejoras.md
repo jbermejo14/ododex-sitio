@@ -99,6 +99,12 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - `fitBounds` del mapa al elegir una provincia en el explorador de la portada.
 - Filtro por tipo de conector y potencia en las páginas de provincia.
 
+### ITV
+- Revisar las tarifas cada enero y completar las de confianza baja (Baleares, Galicia, C. Valenciana, Navarra, La Rioja, Ceuta) y Murcia con su fuente primaria.
+- Completar en OpenStreetMap los centros sin operador, horario o dirección (70 % de las fichas), o cruzar con los listados abiertos de C. Valenciana, Castilla-La Mancha, Castilla y León y Extremadura.
+- Vigilar en Search Console las fichas de centro y las páginas de año; plan B: `noindex` en las que no se indexen.
+- Subir el repositorio `es-itv` a GitHub.
+
 ### Llamadas a revisión
 - Automatizar la descarga del XML de Safety Gate si existe un enlace estable.
 - Bloque de carVertical ("comprueba si tu coche tiene revisiones pendientes").

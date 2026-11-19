@@ -99,6 +99,30 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## es-itv — /es/itv
+
+| | |
+|---|---|
+| URL | https://ododex.com/es/itv |
+| Repositorio | local `es-itv` (rama `main`); sin remoto en GitHub todavía |
+| Worker | `ododex-itv` |
+| Ficheros | ~3 000 (590 páginas) |
+| Pruebas | 394 |
+| Datos | Centros de OpenStreetMap (ODbL, 373 válidos); periodicidad del RD 920/2017 (`docs/normativa.md`); tarifas por comunidad en `data/tariffs.json` (`docs/tarifas.md`, con fuente y confianza por comunidad) |
+
+**Qué ofrece:**
+- calculadora "¿cuándo me toca la ITV?" para 15 tipos de vehículo, con la regla de los 30 días;
+- mapa OpenStreetMap con todos los centros y botón "ITV más cercana a mí";
+- páginas por provincia (52), municipio (38, solo con 2 o más centros) y centro (373), con cercanos, distancias y tarifa de su comunidad;
+- periodicidad por vehículo (15) y por año de matriculación (75), tarifas por comunidad (19) y 6 guías de normativa.
+
+**Particularidades:**
+- `data/stations.json` se genera a mano con `npm run import-stations` (necesita el `estaciones.json` de gasolineras para ubicar el municipio); la compilación no usa red ni depende de otra web.
+- Las tarifas se revisan cada enero; Murcia sin tarifa verificada, Baleares sin tipo de IVA, Madrid precio libre (solo Applus+).
+- Instalación en Windows: `npm install --force --cpu=wasm32`.
+
+---
+
 ## electrico-vs-gasolina — /es/electrico-vs-gasolina
 
 | | |

@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de la web de ITV (centros, fechas y tarifas). La route lleva /es/itv* a este
+  // Worker; se ejecuta antes que el dominio personalizado del Worker principal (wrangler.jsonc).
+  "name": "ododex-itv",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/itv*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-itv",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

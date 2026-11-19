@@ -51,3 +51,9 @@ Registro de las decisiones importantes, con su motivo y las alternativas descart
 | Precios de recarga: **tarifas por operador del titular** (noviembre de 2026), marcadas como orientativas | RIPREE no publica precios | Una tarifa única de ejemplo; API PVPC de REE |
 | **Worker propio** y recompilación en la actualización diaria de gasolineras | Medias del mismo día sin redesplegar el Worker principal | Ir en el Worker `ododex` |
 | Slug de URL propio (`a-coruna`) en vez del de MITECO (`coruna-a`) | Mejor para SEO | Reutilizar el slug de MITECO |
+| Web nueva **es-itv** en `/es/itv` (19/11/2026) | Ruta corta que coincide con la búsqueda "itv" | `/es/centros-itv` |
+| Centros ITV de **OpenStreetMap** (fichero aportado por el titular) | Único listado nacional con coordenadas; los registros autonómicos solo existen en 4 comunidades | Fuentes autonómicas por separado |
+| Tarifas: oficiales donde hay boletín; en precio libre, **precios publicados por operadores o fuentes secundarias**, marcados | Más útil y mejor para SEO; elegido por el titular | Solo "precio libre, consulta la estación" |
+| Ranking de tarifas **sin Madrid, Murcia ni Baleares** | Madrid solo tiene el precio de un operador; Murcia y Baleares no tienen total verificable | Incluirlas con su cifra |
+| Calculadora: el tramo nuevo empieza **el día del aniversario**, dicho en la web como criterio propio | La norma no precisa el día exacto | La lectura inclusiva ("hasta 10 años" incluye ese día) |
+| Fichas de centro **indexables** aunque falten datos de OSM | Dan distancias, cercanos y tarifa; si Search Console no las indexa, se valorará `noindex` | `noindex` desde el principio |
