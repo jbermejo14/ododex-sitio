@@ -494,3 +494,64 @@ Reglas comunes:
 - Prueba de que ninguna página legal importa `AdSlot`.
 - Prueba de que ninguna página pasa de 3 `AdSlot`, contando las apariciones en su fichero y en los componentes de página que use. Si contarlas así no es fiable, basta con un recuento en el HTML exportado durante la verificación.
 - `npm test`, `tsc` y build pasan. En el HTML exportado sin unidad configurada no hay ningún `<ins class="adsbygoogle">`.
+
+## 9. Ampliación: portadas por idioma (`/fr`) y secciones sin publicar
+
+Añadida el 2026-11-19 a petición del titular: `https://ododex.com/fr` muestra el listado de webs de Francia, igual que `https://ododex.com/` muestra las de España.
+
+### 9.1 Qué hace y qué no
+
+- La portada española (`/`) lista las secciones cuya `ruta` empieza por `/es/`; la francesa (`/fr`, fichero `dist/fr/index.html`) las que empiezan por `/fr/`. En ambas se omiten las que tienen `enPortada: false` o `publicada: false`.
+- `/fr` tiene su propia 404 en francés (`dist/fr/404.html`): con `not_found_handling: "404-page"` Cloudflare sirve la 404 más cercana, así que cualquier `/fr/...` inexistente que llegue al Worker principal la muestra.
+- Enlace de idioma: la portada española enlaza a « Version française » (`/fr`) y la francesa a « Versión en español » (`/`).
+- Campo nuevo `publicada` en `secciones.json` (booleano, opcional, por defecto `true`). Con `false`, la sección se compila y ensambla como siempre (para poder previsualizarla), pero **no aparece en ninguna portada ni en `robots.txt`**. Se usa para `/fr/zfe` mientras tenga datos de ejemplo.
+- No hay portada `/en` (hoy solo existe `/en/recalls`).
+- No cambia el diseño: misma hoja `estilos.css`, mismas tarjetas.
+
+### 9.2 Cambios en `lib/ensamblado.mjs`
+
+```js
+/** Portadas por idioma: plantilla en raiz/, destino en la salida del Worker principal. */
+export const PORTADAS = [
+  { idioma: "es", plantilla: "index.html", destino: "index.html" },
+  { idioma: "fr", plantilla: "fr/index.html", destino: "fr/index.html" },
+];
+
+/** true si la sección va en la portada de ese idioma: ruta /<idioma>/…, enPortada !== false y publicada !== false. */
+export function seccionEnPortada(seccion, idioma);
+
+/** Igual que hoy, con el idioma como cuarto parámetro (por defecto "es"): solo tarjetas de seccionEnPortada(s, idioma). */
+export function generarPortada(plantilla, secciones, origen, idioma = "es");
+
+/** robots.txt: un Sitemap por sección con publicada !== false (las demás reglas, igual). */
+export function textoRobots(origen, secciones);
+```
+
+- `validarSeccion`: `publicada`, si existe, debe ser booleano (mensaje como el de `enPortada`).
+- `ensamblarPrincipal`: genera las dos portadas (`PORTADAS`), y `copiarRaiz` excluye **todas** las plantillas de `PORTADAS` (ya no solo `index.html`) para no copiarlas con los marcadores sin rellenar.
+- `PAGINAS_RAIZ_CON_ADSENSE` incluye `fr/index.html` y `fr/404.html`.
+- Si falta la plantilla de una portada: Error que diga qué fichero falta en `raiz/`.
+
+### 9.3 Plantillas nuevas
+
+- `raiz/fr/index.html`: copia de `raiz/index.html` en francés (`lang="fr"`), con:
+  - `<title>Ododex : les données de votre voiture, en clair</title>`, descripción, canonical y `og:url` `<!-- ORIGEN -->/fr`, `og:locale` `fr_FR`;
+  - H1 « Les données de votre voiture, en clair. » e introducción: « Ododex est un site indépendant de comparateurs et de calculateurs pour les automobilistes en France. Ce n'est pas un site officiel : vérifiez toujours les sources officielles avant de prendre une décision. »;
+  - `aria-label` del botón de tema y de la navegación en francés (« Changer de thème clair/sombre », « Sections »);
+  - pie con « Mentions légales », « Confidentialité », « Cookies » enlazando a `/fr/prix-carburants/mentions-legales`, `/fr/prix-carburants/confidentialite`, `/fr/prix-carburants/cookies`, y « Versión en español » a `/`;
+  - el logo enlaza a `/fr`; marcadores `<!-- ADSENSE -->`, `<!-- SECCIONES -->` y `<!-- ORIGEN -->`.
+- `raiz/fr/404.html`: copia de `raiz/404.html` en francés (« Page introuvable », enlace « Retour à l'accueil » a `/fr`), `noindex`, marcador `<!-- ADSENSE -->`.
+- `raiz/index.html`: añade en el pie « Version française » enlazando a `/fr`.
+
+### 9.4 Configuración
+
+- `config/secciones.json`: `/fr/prix-carburants` pierde `enPortada: false` (pasa a la portada francesa); `/fr/zfe` sustituye `enPortada: false` por `publicada: false`. `/en/recalls` sigue con `enPortada: false`.
+
+### 9.5 Criterios de aceptación (`tests/ensamblado.test.mjs`)
+
+- `seccionEnPortada`: `/es/x` en `es` sí y en `fr` no; `/fr/x` al revés; `enPortada: false` y `publicada: false` → no; `/en/x` en ninguna.
+- `generarPortada` con idioma `fr` solo pinta las francesas; sin idioma, las españolas (compatibilidad).
+- `textoRobots` omite las secciones con `publicada: false`.
+- `leerSecciones` rechaza `publicada` no booleano.
+- `ensamblar` (con una raíz de prueba que tenga `fr/index.html` y `fr/404.html`): `dist/fr/index.html` existe, tiene las tarjetas francesas, ningún marcador sin rellenar y el script de AdSense; `dist/index.html` no lista secciones `/fr/`.
+- `npm test` entero en verde; las pruebas existentes de portada siguen pasando (adaptadas solo si cambian de forma justificada).
