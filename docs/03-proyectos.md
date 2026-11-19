@@ -159,12 +159,12 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 | URL | https://ododex.com/es/itv |
 | Repositorio | local `es-itv` (rama `main`); sin remoto en GitHub todavía |
 | Worker | `ododex-itv` |
-| Ficheros | ~3 000 (590 páginas) |
+| Ficheros | ~3 050 (~600 páginas; 363 en el sitemap) |
 | Pruebas | 394 |
 | Datos | Centros de OpenStreetMap (ODbL, 373 válidos); periodicidad del RD 920/2017 (`docs/normativa.md`); tarifas por comunidad en `data/tariffs.json` (`docs/tarifas.md`, con fuente y confianza por comunidad) |
 
 **Qué ofrece:**
-- calculadora "¿cuándo me toca la ITV?" para 15 tipos de vehículo, con la regla de los 30 días;
+- periodicidad de 21 tipos de vehículo (furgoneta mixta, VTC, camper, etc.) con línea de tiempo por edades, matriz vehículo × edad y "primera ITV" por año (la calculadora se quitó el 20/11/2026 a petición del titular);
 - mapa OpenStreetMap con todos los centros y botón "ITV más cercana a mí";
 - páginas por provincia (52), municipio (38, solo con 2 o más centros) y centro (373), con cercanos, distancias y tarifa de su comunidad;
 - periodicidad por vehículo (15) y por año de matriculación (75), tarifas por comunidad (19) y 6 guías de normativa.
