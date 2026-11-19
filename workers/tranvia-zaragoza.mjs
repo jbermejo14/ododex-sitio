@@ -1,14 +1,16 @@
 // Worker del tranvía de Zaragoza: sirve los estáticos de la sección y hace de proxy de la API
 // de tiempos de DNDzgz, que no envía cabeceras CORS. Se despliega sin empaquetar (no_bundle).
+// Solo se exportan funciones: workerd trata cada export del módulo principal como punto de entrada
+// y rechaza los que no lo son (constantes).
 
-export const URL_ORIGEN = "https://api.dndzgz.com/services/tram/";
-export const PREFIJO_API = "/es/tranvia-zaragoza/api/";
-export const PREFIJO_RUTA_ANDEN = `${PREFIJO_API}tram/`;
-export const PATRON_ANDEN = /^\d{4}$/;
-export const TIEMPO_MAXIMO_MS = 5000;
-export const TTL_CACHE_ORIGEN_S = 20;
-export const MAX_AGE_RESPUESTA_S = 15;
-export const METODO_PERMITIDO = "GET";
+const URL_ORIGEN = "https://api.dndzgz.com/services/tram/";
+const PREFIJO_API = "/es/tranvia-zaragoza/api/";
+const PREFIJO_RUTA_ANDEN = `${PREFIJO_API}tram/`;
+const PATRON_ANDEN = /^\d{4}$/;
+const TIEMPO_MAXIMO_MS = 5000;
+const TTL_CACHE_ORIGEN_S = 20;
+const MAX_AGE_RESPUESTA_S = 15;
+const METODO_PERMITIDO = "GET";
 
 const TIPO_JSON = "application/json; charset=utf-8";
 // Los errores no se cachean: el siguiente intento debe volver a consultar el origen.
@@ -21,10 +23,10 @@ const ESTADO_NO_ENCONTRADO = 404;
 const ESTADO_METODO_NO_PERMITIDO = 405;
 const ESTADO_ORIGEN_FALLIDO = 502;
 
-export const MENSAJE_ANDEN_INVALIDO = "El andén debe ser un número de cuatro cifras.";
-export const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
-export const MENSAJE_METODO = "Método no permitido: usa GET.";
-export const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del tranvía. Inténtalo de nuevo en unos segundos.";
+const MENSAJE_ANDEN_INVALIDO = "El andén debe ser un número de cuatro cifras.";
+const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
+const MENSAJE_METODO = "Método no permitido: usa GET.";
+const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del tranvía. Inténtalo de nuevo en unos segundos.";
 
 /** Respuesta JSON de error con el mensaje en español. */
 function respuestaError(estado, mensaje, cabecerasExtra = {}) {
@@ -39,7 +41,7 @@ function respuestaError(estado, mensaje, cabecerasExtra = {}) {
  * @param {unknown} datos Cuerpo recibido del origen.
  * @returns {{ direction: string, estimate: number }[] | null} null si el formato no es { estimates: [...] }.
  */
-export function sanearEstimaciones(datos) {
+function sanearEstimaciones(datos) {
   if (datos === null || typeof datos !== "object" || !Array.isArray(datos.estimates)) {
     return null;
   }
@@ -60,8 +62,9 @@ async function pedirOrigen(anden) {
     const respuesta = await fetch(`${URL_ORIGEN}${anden}`, {
       cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true },
       signal: controlador.signal,
-      // Solo se consulta el host fijo de DNDzgz: una redirección a otro sitio se trata como fallo.
-      redirect: "error",
+      // Solo se consulta el host fijo de DNDzgz: una redirección no se sigue y su 3xx cae en el
+      // !ok de abajo (502). El runtime de Workers no admite redirect: "error".
+      redirect: "manual",
     });
     if (!respuesta.ok) {
       throw new Error(`El origen respondió ${respuesta.status}.`);

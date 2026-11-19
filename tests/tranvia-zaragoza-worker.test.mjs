@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it, mock } from "node:test";
-import worker, {
-  MENSAJE_ANDEN_INVALIDO,
-  MENSAJE_METODO,
-  MENSAJE_NO_ENCONTRADO,
-  MENSAJE_ORIGEN,
-  TIEMPO_MAXIMO_MS,
-  sanearEstimaciones,
-} from "../workers/tranvia-zaragoza.mjs";
+import worker from "../workers/tranvia-zaragoza.mjs";
+
+// Literales del contrato (el Worker no exporta constantes: workerd lo rechazaría).
+const MENSAJE_ANDEN_INVALIDO = "El andén debe ser un número de cuatro cifras.";
+const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
+const MENSAJE_METODO = "Método no permitido: usa GET.";
+const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del tranvía. Inténtalo de nuevo en unos segundos.";
+const TIEMPO_MAXIMO_MS = 5000;
 
 const BASE = "https://ododex.com/es/tranvia-zaragoza";
 const ANDEN = "1402";
@@ -70,7 +70,7 @@ describe("worker del tranvía de Zaragoza", () => {
     const [url, opciones] = simulado.mock.calls[0].arguments;
     assert.equal(url, URL_ORIGEN_ESPERADA);
     assert.deepEqual(opciones.cf, { cacheTtl: 20, cacheEverything: true });
-    assert.equal(opciones.redirect, "error");
+    assert.equal(opciones.redirect, "manual");
     assert.equal(opciones.headers, undefined);
     assert.ok(opciones.signal instanceof AbortSignal);
   });
@@ -139,7 +139,6 @@ assert.equal(respuesta.headers.get("cache-control"), "no-store");
     const pendiente = worker.fetch(peticion(), entornoSimulado());
     mock.timers.tick(TIEMPO_MAXIMO_MS);
     const respuesta = await pendiente;
-    assert.equal(TIEMPO_MAXIMO_MS, 5000);
     assert.equal(respuesta.status, 502);
 assert.equal(respuesta.headers.get("cache-control"), "no-store");
     assert.deepEqual(await respuesta.json(), { error: MENSAJE_ORIGEN });
@@ -167,8 +166,16 @@ assert.equal(respuesta.headers.get("cache-control"), "no-store");
   });
 });
 
-describe("sanearEstimaciones", () => {
-  it("descarta estimaciones inválidas y conserva el 0", () => {
+// El saneado se prueba a través de fetch: el Worker no exporta funciones auxiliares (workerd lo rechazaría).
+describe("saneado de estimaciones", () => {
+  afterEach(() => mock.restoreAll());
+
+  async function responderCon(cuerpo) {
+    mock.method(globalThis, "fetch", async () => respuestaJson(cuerpo));
+    return worker.fetch(peticion(), entornoSimulado());
+  }
+
+  it("descarta estimaciones inválidas y conserva el 0", async () => {
     const datos = {
       estimates: [
         { direction: "A", estimate: 0 },
@@ -183,15 +190,21 @@ describe("sanearEstimaciones", () => {
         { direction: "F", estimate: 12.5 },
       ],
     };
-    assert.deepEqual(sanearEstimaciones(datos), [
+    const respuesta = await responderCon(datos);
+    assert.equal(respuesta.status, 200);
+    assert.deepEqual(await respuesta.json(), {
+      estimates: [
       { direction: "A", estimate: 0 },
       { direction: "F", estimate: 12.5 },
-    ]);
+      ],
+    });
   });
 
-  it("devuelve null si el formato no es { estimates: [...] }", () => {
-    for (const datos of [null, undefined, 3, "x", [], {}, { estimates: {} }]) {
-      assert.equal(sanearEstimaciones(datos), null);
+  it("responde 502 si el formato no es { estimates: [...] }", async () => {
+    for (const datos of [null, 3, "x", [], {}, { estimates: {} }]) {
+      const respuesta = await responderCon(datos);
+      assert.equal(respuesta.status, 502, JSON.stringify(datos));
+      mock.restoreAll();
     }
   });
 });
