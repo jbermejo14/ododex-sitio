@@ -142,7 +142,7 @@ La regla para cada ficha es que tenga al menos una cosa útil que no esté en ni
 >
 >   Corrige un error grave de los datos: 51 ciudades sin ZBE en vigor según el MITECO mostraban prohibiciones.
 > - **No se ha puesto `noindex`** en CERO y ECO: con el estado y el calendario ya no son copias.
-> **Corregido en ZBE el 19/11/2026.**
+>
 > | Par de páginas | Palabras | Parecido (antes 67 %) |
 > |---|---|---|
 > | Sevilla/B frente a Bilbao/B | 410 / 574 | 19 % |
@@ -174,7 +174,7 @@ La regla para cada ficha es que tenga al menos una cosa útil que no esté en ni
   - `/etiqueta-dgt/*/*` (~93);
   - operadores (~89);
   - algunas ZBE (L'Hospitalet, 91).
-- **Descripciones largas** (más de 160 caracteres): casi todas las de ZBE (185-240).
+- **Descripciones largas** (más de 160 caracteres): casi todas las de ZBE (185-240). **Corregido en ZBE el 19/11/2026.**
 - **`og:image` en todas las secciones:** una imagen por sección como mínimo, mejor si se genera por página en la compilación.
 - **JSON-LD:** añadirlo en la portada de impuestos y en la de puntos de recarga (`WebApplication` y `BreadcrumbList`).
 - **HTML pesado:**
