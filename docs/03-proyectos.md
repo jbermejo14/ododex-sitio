@@ -104,7 +104,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 | | |
 |---|---|
 | URL | https://ododex.com/es/electrico-vs-gasolina (publicada el 19/11/2026) |
-| Repositorio | Local, rama `main`, sin remoto |
+| Repositorio | `github.com/jbermejo14/electrico-vs-gasolina`; rama `main` |
 | Worker | `ododex-electrico-vs-gasolina` |
 | Ficheros | ~334 |
 | Pruebas | 150 |
