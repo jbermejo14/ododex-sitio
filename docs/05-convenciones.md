@@ -51,7 +51,7 @@ Se programa como si el proyecto fuera a mantenerlo durante diez años otro equip
 - **Prohibido:**
   - colores de paleta sueltos (`orange-500`, `#FF6B00` a mano...);
   - degradados.
-  Las pruebas de cada web lo comprueban.
+  Las pruebas de cada web lo comprueban. Excepciones aprobadas por el titular: `zarabus` (paleta roja propia) y `zaratram-live` (paleta oscura propia, sin tema claro).
 - **Tema:**
   - atributo `data-theme` en `<html>`;
   - `localStorage['ododex-theme']`;

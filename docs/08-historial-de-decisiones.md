@@ -66,5 +66,8 @@ Registro de las decisiones importantes, con su motivo y las alternativas descart
 | Autobús de Zaragoza: **paleta roja propia** | Distingue la web del resto de secciones | La paleta común de Ododex |
 | Autobús de Zaragoza: **sin anuncios** | Decisión del titular | AdSense como en las demás webs |
 | Autobús de Zaragoza: **Avanza como origen y DNDzgz como respaldo** | La API municipal de tiempos estaba caída; Avanza es el operador y DNDzgz responde en JSON sin tildes | DNDzgz como único origen |
+| Tranvía de Zaragoza: **tiempo real de DNDzgz por proxy propio y horario GTFS oficial de respaldo** (19/11/2026) | La API municipal responde vacía; DNDzgz no envía CORS y el proxy evita ejecutar JS ajeno (JSONP); el GTFS da un dato oficial cuando falla el tiempo real | JSONP directo a DNDzgz; solo horario; esperar a la API municipal |
+| Tranvía de Zaragoza: **estética oscura propia** sin tema claro | App de mapa a pantalla completa; elegido por el titular | Tokens y tema claro/oscuro de la red |
+| Tranvía de Zaragoza: ruta **`/es/tranvia-zaragoza`** y sentido norte rotulado **«Parque Goya»** | Ruta explícita para SEO; rótulo pedido por el titular aunque la terminal es Avenida de la Academia | `/es/tranvia` |
 | ZFE: **datos de ejemplo con aviso y `noindex`** hasta cargar la Base Nationale des ZFE | No indexar restricciones inventadas; la estructura queda lista para el fichero oficial | Publicar sin aviso; esperar a tener datos para construir la web |
 | ZFE: calculadora con la **tabla oficial de deux-roues** y la **clase peor en años frontera** | La tabla simplificada pedida no cubre las motos; sin mes de matriculación, la clase segura es la peor | Aplicar a las motos la tabla de turismos |

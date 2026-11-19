@@ -339,6 +339,31 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## zaratram-live — /es/tranvia-zaragoza
+
+| | |
+|---|---|
+| URL | https://ododex.com/es/tranvia-zaragoza |
+| Repositorio | local `zaratram-live` (rama `master`); sin remoto en GitHub todavía |
+| Worker | `ododex-tranvia-zaragoza` (con código: proxy `/api/tram/{andén}` → DNDzgz) |
+| Ficheros | ~40 |
+| Pruebas | ~190 (más las del Worker en ododex-sitio) |
+| Datos | Paradas, trazados y horario del GTFS oficial del tranvía (Avanza / Tranvías de Zaragoza, vía NAP y Mobility Database `mdb-2801`) en `public/datos/linea1.json`; tiempo real de DNDzgz (no oficial) por el Worker |
+
+**Qué ofrece:**
+- mapa a pantalla completa con las 32 paradas (14 de un solo sentido) y los dos trazados;
+- próximos tranvías por sentido, con el origen del dato (tiempo real u horario programado);
+- parada más cercana con geolocalización y semáforo de salida sobre la parada favorita;
+- auto-refresco cada 30 s.
+
+**Particularidades:**
+- La API municipal `parada-tranvia.json` responde vacía desde noviembre de 2026; no se usa.
+- El GTFS cargado vale **hasta el 31/12/2026**: reimportar antes con `npm run import:gtfs` (descarga de Mobility Database) y recompilar. Sin horario vigente la web avisa y solo muestra tiempo real.
+- Estética oscura propia (pizarra y rojo tranvía), sin tema claro: excepción aprobada por el titular.
+- Instalación en Windows: `npm install --force --cpu=wasm32 --os=win32` y copiar `lightningcss-win32-x64-msvc` de otra web.
+
+---
+
 ## vehicle-stats — sin publicar
 
 - **Repositorio:** GitHub, rama `feature/ssg-microdatos-dgt`, Next 16. Todo subido.

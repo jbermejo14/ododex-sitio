@@ -122,6 +122,12 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - Subir el repositorio a GitHub (hoy solo local).
 - Vigilar que Avanza no cambie su HTML (si cambia, el Worker cae a DNDzgz y registra el motivo en los logs); revisar si la API municipal de tiempos vuelve a funcionar.
 
+### Tranvía de Zaragoza (zaratram-live)
+- **Antes del 31/12/2026:** `npm run import:gtfs` en zaratram-live, compilar y desplegar `--solo /es/tranvia-zaragoza` (el GTFS actual caduca ese día).
+- Pedir permiso al autor de DNDzgz para usar su API (no publica condiciones de uso) o buscar una fuente oficial de tiempo real.
+- Vigilar el límite gratuito de 100 000 peticiones de Worker al día (al superarlo la web cae al horario).
+- Subir el repositorio a GitHub (hoy solo local).
+
 ### Llamadas a revisión
 - Automatizar la descarga del XML de Safety Gate si existe un enlace estable.
 - Bloque de carVertical ("comprueba si tu coche tiene revisiones pendientes").

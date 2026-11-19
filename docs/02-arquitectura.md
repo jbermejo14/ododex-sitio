@@ -12,6 +12,7 @@ Arsys (registrador)  ──NS──▶  Cloudflare (DNS + proxy + HTTPS)
               │   ododex.com/es/itv*               → Worker ododex-itv
               │   ododex.com/es/zbe*               → Worker ododex-zbe
               │   ododex.com/es/zaragoza-bus*      → Worker ododex-zaragoza-bus (con proxy de tiempos)
+              │   ododex.com/es/tranvia-zaragoza*  → Worker ododex-tranvia-zaragoza (con proxy de tiempos)
               │   ododex.com/es/puntos-recarga*    → Worker ododex-puntos-recarga
               │   ododex.com/es/llamadas-revision* → Worker ododex-llamadas-revision
               │   ododex.com/en/recalls*           → Worker ododex-recalls
@@ -53,6 +54,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-zfe` | /fr/zfe | ~132 (Worker propio para publicar y cambiar sus datos sin redesplegar el principal) |
 | `ododex-radars` | /fr/radars | ~148 con el extracto (Worker propio, como zfe) |
 | `ododex-zaragoza-bus` | /es/zaragoza-bus | ~40 (Worker propio con código: proxy de tiempos reales Avanza → DNDzgz) |
+| `ododex-tranvia-zaragoza` | /es/tranvia-zaragoza | ~40 (Worker propio con código: proxy de tiempos reales del tranvía → DNDzgz; solo `/api/*` ejecuta código) |
 
 `comprobarLimitesPages` (en `lib/ensamblado.mjs`) falla el ensamblado si una salida supera 20 000 ficheros o algún fichero supera 25 MiB.
 
@@ -180,6 +182,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `zfe-fr` | /fr/zfe (Francia, en francés) | Integrada en el ensamblado; sin publicar (datos de ejemplo) |
 | `radars-fr` | /fr/radars (Francia, en francés) | Integrada en el ensamblado; sin publicar (extracto de radares de 2018) |
 | `zarabus` | /es/zaragoza-bus (autobús urbano de Zaragoza) | Integrada en el ensamblado; sin publicar |
+| `zaratram-live` | /es/tranvia-zaragoza (tranvía de Zaragoza, L1) | Integrada en el ensamblado |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
 | `uk-petrostation` | Gasolineras de Reino Unido | Sin publicar (sin datos reales) |
 | `uk-ulez-map` | ULEZ de Londres | Sin publicar (necesita clave DVLA y servidor) |
