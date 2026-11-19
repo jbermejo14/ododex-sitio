@@ -555,3 +555,77 @@ export function textoRobots(origen, secciones);
 - `leerSecciones` rechaza `publicada` no booleano.
 - `ensamblar` (con una raíz de prueba que tenga `fr/index.html` y `fr/404.html`): `dist/fr/index.html` existe, tiene las tarjetas francesas, ningún marcador sin rellenar y el script de AdSense; `dist/index.html` no lista secciones `/fr/`.
 - `npm test` entero en verde; las pruebas existentes de portada siguen pasando (adaptadas solo si cambian de forma justificada).
+
+## 10. Ampliación: enlaces entre secciones (red de Ododex)
+
+Añadida el 2026-11-19. La auditoría SEO mostró que casi ninguna página enlaza a otra web de la red. Objetivo: que cada página de provincia, municipio o ficha enlace a sus equivalentes en las demás webs españolas, y que todas las webs españolas enlacen a las demás en el pie.
+
+### 10.1 Qué hace y qué no
+
+- `scripts/generar-red.mjs` lee los `sitemap.xml` ya compilados de las secciones (`dist*/…/sitemap.xml`) y escribe `config/red-enlaces.json` (versionado, foto fija; se regenera a mano o en la actualización diaria).
+- `construir.mjs` pasa a cada compilación la variable `ODODEX_RED_ENLACES` con la ruta absoluta de ese fichero. Sin la variable o sin el fichero, las webs no pintan enlaces de red (desarrollo local).
+- Solo secciones `/es/…` publicadas (`publicada !== false`). Las francesas y `/en/recalls` quedan fuera de esta versión.
+- No hay enlaces por comunidad autónoma (impuestos) ni por marca (llamadas a revisión): esas webs solo reciben el pie.
+
+### 10.2 Formato de `config/red-enlaces.json`
+
+```json
+{
+  "version": 1,
+  "generado": "2026-11-19T18:00:00.000Z",
+  "secciones": [ { "ruta": "/es/multas", "nombre": "Multas y radares", "descripcion": "…" } ],
+  "enlaces": {
+    "/es/gasolineras/provincia/alicante": [
+      { "seccion": "/es/puntos-recarga", "texto": "Puntos de recarga en Alicante", "href": "/es/puntos-recarga/provincia/alicante-alacant" }
+    ]
+  }
+}
+```
+
+- `secciones`: las secciones `/es/` publicadas con `enPortada !== false`, en el orden de `secciones.json` (para el pie).
+- `enlaces`: clave = ruta de la página **sin barra final**; valor = enlaces a **otras** secciones, en el orden fijo de 10.4. Rutas desde la raíz del dominio (las webs las pintan con `<a href>` tal cual: son de otra sección, así que no llevan el `basePath` propio).
+- `texto`: lo genera el script con el nombre de la sección destino y el nombre del lugar legible (10.3).
+
+### 10.3 Emparejamiento (funciones puras en `lib/red.mjs`, probadas)
+
+```js
+/** Clave de un slug: palabras únicas sin artículos ni conectores (a, o, la, las, el, los, l, de, del, les, els, illes, i, y), ordenadas y unidas por espacio. */
+export function claveLugar(slug);
+/** true si las claves son iguales o si las palabras de una están todas en la otra (« alicante » ⊂ « alacant alicante »). */
+export function clavesCompatibles(a, b);
+/** Empareja dos listas de slugs: primero por clave igual; lo que quede, por compatibilidad si es única (una sola candidata en cada sentido). Devuelve Map slugA → slugB. */
+export function emparejar(slugsA, slugsB);
+/** Nombre legible de un slug: palabras con mayúscula inicial salvo artículos; « coruna-a » → « A Coruña » no es deducible: usa la tabla NOMBRES_PROVINCIA (52 provincias, nombre oficial en castellano) para provincias y, para municipios, mayúscula inicial por palabra moviendo el artículo final al principio (« rozas-de-madrid-las » → « Las Rozas de Madrid »). */
+export function nombreLugar(slug, tipo);
+```
+
+- **Provincias:** las de gasolineras (`/provincia/<p>`) son la referencia; se emparejan con recarga (`/provincia/<p>`), ITV (`/centros/<p>`), multas (`/radares/<p>`) y eléctrico vs gasolina (`/<p>`).
+- **Municipios:** dentro de cada pareja de provincias, gasolineras (`/provincia/<p>/<m>`) con recarga (`/provincia/<p>/<m>`).
+- **ZBE:** de `../zbe-map/data/municipality-links.json` (ciudad ZBE → municipio de gasolineras y de recarga). Si el fichero no existe, sin enlaces ZBE y aviso.
+- El script imprime cuántas provincias y municipios ha emparejado por sección y los que no.
+
+### 10.4 Qué enlaces lleva cada página (orden fijo)
+
+| Página (clave) | Enlaces |
+|---|---|
+| gasolineras provincia | recarga provincia, eléctrico vs gasolina provincia, ITV centros provincia, radares provincia |
+| gasolineras municipio | recarga municipio, ZBE ciudad, ITV centros provincia |
+| recarga provincia | gasolineras provincia, eléctrico vs gasolina provincia, ITV centros provincia, radares provincia |
+| recarga municipio | gasolineras municipio, ZBE ciudad, ITV centros provincia |
+| ITV centros provincia | gasolineras provincia, recarga provincia, radares provincia |
+| radares provincia | gasolineras provincia, ITV centros provincia, recarga provincia |
+| eléctrico vs gasolina provincia | recarga provincia, gasolineras provincia, ITV centros provincia |
+
+Solo se incluye un enlace si la página destino existe en su sitemap. Las fichas (gasolinera, punto de recarga) usan los enlaces de **su municipio** (la web busca la clave de la página de su municipio).
+
+Textos (`texto`): « Puntos de recarga en {lugar} », « Gasolineras en {lugar} », « Coche eléctrico o gasolina en {lugar} », « Centros ITV en {provincia} », « Radares DGT en {provincia} », « Zona de bajas emisiones de {ciudad} ».
+
+### 10.5 Integración en `construir.mjs` y en la actualización diaria
+
+- `construir.mjs`: añade `ODODEX_RED_ENLACES=<ruta absoluta de config/red-enlaces.json>` al entorno de cada compilación (si el fichero existe).
+- `package.json`: script `red` (`node scripts/generar-red.mjs`). No se encadena en la actualización diaria (los municipios con página cambian poco); se ejecuta a mano tras una compilación completa y se versiona el JSON.
+
+### 10.6 Aceptación
+
+- `tests/red.test.mjs`: `claveLugar` (artículos, orden, repetidas), `clavesCompatibles` (contención en ambos sentidos), `emparejar` (iguales, contención única, ambigüedad → sin pareja), `nombreLugar` (provincias de la tabla, artículo final), generación de `enlaces` con sitemaps de prueba en un directorio temporal (orden fijo, sin autoenlace, solo destinos existentes, ZBE opcional).
+- Ejecución real: `node scripts/generar-red.mjs` con los `dist*` actuales; informe de emparejados.
