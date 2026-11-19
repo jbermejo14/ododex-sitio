@@ -53,7 +53,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-itv` | /es/itv | ~3 000 |
 | `ododex-zfe` | /fr/zfe | ~132 (Worker propio para publicar y cambiar sus datos sin redesplegar el principal) |
 | `ododex-radars` | /fr/radars | ~148 con el extracto (Worker propio, como zfe) |
-| `ododex-zaragoza-bus` | /es/zaragoza-bus | ~40 (Worker propio con código: proxy de tiempos reales Avanza → DNDzgz) |
+| `ododex-zaragoza-bus` | /es/zaragoza-bus | 73 (Worker propio con código: proxy de tiempos reales Avanza → DNDzgz) |
 | `ododex-tranvia-zaragoza` | /es/tranvia-zaragoza | ~40 (Worker propio con código: proxy de tiempos reales del tranvía → DNDzgz; solo `/api/*` ejecuta código) |
 
 `comprobarLimitesPages` (en `lib/ensamblado.mjs`) falla el ensamblado si una salida supera 20 000 ficheros o algún fichero supera 25 MiB.
@@ -109,7 +109,7 @@ ododex-sitio/
 | `exportacion` | no | Carpeta de salida de Next si no es `out` (ej. `out-es`). |
 | `scriptBuild` | no | Script de npm a ejecutar si no es `build` (ej. `build:es`). |
 | `enPortada` | no | `false` para no mostrarla en la portada de su idioma (recalls en inglés). |
-| `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe`, `/fr/radars` y `/es/zaragoza-bus`). |
+| `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe` y `/fr/radars`). |
 
 ### `config/produccion.json`
 
@@ -181,7 +181,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `prix-carburants-fr` | /fr/prix-carburants (Francia, en francés) | Publicado (actualización diaria con gasolineras) |
 | `zfe-fr` | /fr/zfe (Francia, en francés) | Integrada en el ensamblado; sin publicar (datos de ejemplo) |
 | `radars-fr` | /fr/radars (Francia, en francés) | Integrada en el ensamblado; sin publicar (extracto de radares de 2018) |
-| `zarabus` | /es/zaragoza-bus (autobús urbano de Zaragoza) | Integrada en el ensamblado; sin publicar |
+| `zarabus` | /es/zaragoza-bus (autobús urbano de Zaragoza) | Publicada el 19/11/2026 |
 | `zaratram-live` | /es/tranvia-zaragoza (tranvía de Zaragoza, L1) | Integrada en el ensamblado |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
 | `uk-petrostation` | Gasolineras de Reino Unido | Sin publicar (sin datos reales) |

@@ -35,6 +35,8 @@ npm run build -- --solo /es/zbe
 npm run deploy -- --solo /es/zbe
 ```
 
+**Cuidado en PowerShell:** `npm run deploy -- --solo <ruta>` puede llegar al script sin `--solo`, y entonces `desplegar.mjs` sube **todos** los Workers (pasó el 19/11/2026: se publicaron sin querer `/fr/radars`, `/fr/zfe` y `/es/tranvia-zaragoza`). En PowerShell llama al script directamente: `node scripts/desplegar.mjs --solo <ruta>` (y `node scripts/construir.mjs --solo <ruta>` para compilar).
+
 Si la sección va en el Worker principal (`/es/multas`, `/es/impuestos`), `--solo` recompila esa web, pero el despliegue sube el Worker `ododex` entero: las demás partes de `dist/` deben estar ya presentes.
 
 Para reensamblar sin recompilar (por ejemplo, tras cambiar la portada): `npm run build:sin-compilar`.

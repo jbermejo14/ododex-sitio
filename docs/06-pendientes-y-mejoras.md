@@ -118,7 +118,8 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - Subir el repositorio a GitHub.
 
 ### Autobús de Zaragoza (zarabus)
-- Publicar: `publicada: true` en `secciones.json`, `npm run build` (completo, para `robots.txt` y la portada) y `npm run deploy -- --solo /es/zaragoza-bus` más el Worker principal.
+- Publicada el 19/11/2026. Enviar `https://ododex.com/es/zaragoza-bus/sitemap.xml` a Search Console.
+- Revisar con el titular el despliegue accidental del 19/11/2026 (ver docs/04): `/fr/radars` y `/fr/zfe` quedaron accesibles por URL (sin portada ni robots.txt) y `/es/tranvia-zaragoza` publicada.
 - Subir el repositorio a GitHub (hoy solo local).
 - Vigilar que Avanza no cambie su HTML (si cambia, el Worker cae a DNDzgz y registra el motivo en los logs); revisar si la API municipal de tiempos vuelve a funcionar.
 

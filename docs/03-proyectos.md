@@ -150,7 +150,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 | | |
 |---|---|
-| URL | https://ododex.com/es/zaragoza-bus (sin publicar) |
+| URL | https://ododex.com/es/zaragoza-bus (publicada el 19/11/2026) |
 | Repositorio | Solo local (`zarabus`, sin remoto) |
 | Worker | `ododex-zaragoza-bus` (con código: `workers/zaragoza-bus.mjs`) |
 | Ficheros | ~40 |
