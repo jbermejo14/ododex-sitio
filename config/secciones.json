@@ -96,8 +96,7 @@
     "paginasSoloHtml": [
       "station/*",
       "departement/*/*"
-    ],
-    "enPortada": false
+    ]
   },
   {
     "ruta": "/fr/zfe",
@@ -105,6 +104,6 @@
     "nombre": "ZFE & Crit'Air",
     "descripcion": "Calculez votre vignette Crit'Air et vérifiez où vous pouvez circuler dans les zones à faibles émissions de France.",
     "worker": "ododex-zfe",
-    "enPortada": false
+    "publicada": false
   }
 ]

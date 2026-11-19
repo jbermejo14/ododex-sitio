@@ -19,6 +19,7 @@ Arsys (registrador)  ──NS──▶  Cloudflare (DNS + proxy + HTTPS)
               │ Dominio personalizado (todo lo demás)                     │
               │   ododex.com                       → Worker ododex
               │       /                  portada (raiz/)
+              │       /fr                portada francesa (raiz/fr/)
               │       /es/multas         multas-dgt
               │       /es/impuestos      calculadora-impuestos
               │       /robots.txt, /ads.txt, /_headers, /404.html
@@ -101,7 +102,8 @@ ododex-sitio/
 | `entorno` | no | Variables extra para la compilación (ej. `RECALLS_LANG`). |
 | `exportacion` | no | Carpeta de salida de Next si no es `out` (ej. `out-es`). |
 | `scriptBuild` | no | Script de npm a ejecutar si no es `build` (ej. `build:es`). |
-| `enPortada` | no | `false` para no mostrarla en la portada (recalls en inglés). |
+| `enPortada` | no | `false` para no mostrarla en la portada de su idioma (recalls en inglés). |
+| `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe`). |
 
 ### `config/produccion.json`
 

@@ -95,7 +95,9 @@ El origen, el cliente y la unidad de AdSense por defecto están en `config/produ
 - `entorno`: variables de entorno extra para compilar la sección, sumadas a las de producción. Claves `[A-Z_][A-Z0-9_]*`; valores `[A-Za-z0-9._-]*`.
 - `exportacion`: carpeta de exportación dentro del proyecto (por defecto `out`). Dos secciones del mismo proyecto pueden usar carpetas distintas.
 - `scriptBuild`: script de npm que compila la sección (por defecto `build`; aquí `build:es` y `build:en`).
-- `enPortada`: con `false`, la sección no sale en la portada, pero su sitemap sí está en `robots.txt`.
+- `enPortada`: con `false`, la sección no sale en la portada de su idioma, pero su sitemap sí está en `robots.txt`.
+- `publicada`: con `false`, la sección se compila y ensambla, pero no sale en ninguna portada ni en `robots.txt` (para webs aún sin publicar, como `/fr/zfe`).
+- Portadas por idioma: `/` lista las secciones `/es/…` y `/fr` las `/fr/…` (plantillas `raiz/index.html` y `raiz/fr/index.html`; ver la sección 9 de `ARCHITECTURE.md`).
 
 Antes de ensamblar hay que compilar `../recalls-web` (`npm run build` de este proyecto lo hace). Si falta una carpeta de exportación, el error dice qué sección y qué comando.
 

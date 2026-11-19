@@ -21,6 +21,11 @@ import {
   comandoCompilacion,
   dirExportacionDeSeccion,
   insertarAdsense,
+  seccionEnPortada,
+  PORTADAS,
+  MARCADOR_SECCIONES,
+  MARCADOR_ORIGEN,
+  MARCADOR_ADSENSE,
 } from "../lib/ensamblado.mjs";
 
 const SECCIONES = [
@@ -29,6 +34,8 @@ const SECCIONES = [
 ];
 const PLANTILLA = "<link href=\"<!-- ORIGEN -->/\"><main><!-- SECCIONES --></main>";
 const ORIGEN = "https://ododex.com";
+const PLANTILLA_FR = "<!-- ADSENSE --><link href=\"<!-- ORIGEN -->/fr\"><main><!-- SECCIONES --></main>";
+const SECCION_FR = { ruta: "/fr/prix", proyecto: "prix", nombre: "Prix", descripcion: "Desc prix" };
 
 let tmp;
 
@@ -241,6 +248,7 @@ describe("ensamblar", () => {
   function prepararBase() {
     const dirRaiz = path.join(tmp, "raiz");
     escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "fr", "index.html"), PLANTILLA_FR);
     escribir(path.join(dirRaiz, "404.html"), "404 raiz");
     escribir(path.join(dirRaiz, "estilos.css"), "body{}");
     for (const seccion of SECCIONES) {
@@ -256,7 +264,7 @@ describe("ensamblar", () => {
     const resumen = ensamblar({ ...opciones, clienteAdsense: "pub-1234567890123456" });
     const { dist } = opciones;
     assert.deepEqual(resumen, {
-      workers: [{ worker: undefined, dir: dist, ficheros: 12 }],
+      workers: [{ worker: undefined, dir: dist, ficheros: 13 }],
       secciones: 2,
       adsTxt: true,
     });
@@ -462,6 +470,7 @@ describe("ensamblar con varios Workers", () => {
   function prepararVarios() {
     const dirRaiz = path.join(tmp, "raiz");
     escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "fr", "index.html"), PLANTILLA_FR);
     escribir(path.join(dirRaiz, "404.html"), "404 raiz");
     for (const seccion of TODAS) {
       escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), `home ${seccion.proyecto}`);
@@ -594,6 +603,7 @@ describe("secciones fuera de portada y del mismo proyecto", () => {
   function prepararMismoProyecto() {
     const dirRaiz = path.join(tmp, "raiz");
     escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "fr", "index.html"), PLANTILLA_FR);
     for (const seccion of SECCIONES) {
       escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), seccion.proyecto);
     }
@@ -634,6 +644,100 @@ describe("secciones fuera de portada y del mismo proyecto", () => {
   });
 });
 
+describe("seccionEnPortada", () => {
+  const es = { ...SECCIONES[0] };
+  const fr = { ...SECCION_FR };
+
+  test("elige la portada por el idioma de la ruta", () => {
+    assert.equal(seccionEnPortada(es, "es"), true);
+    assert.equal(seccionEnPortada(es, "fr"), false);
+    assert.equal(seccionEnPortada(fr, "fr"), true);
+    assert.equal(seccionEnPortada(fr, "es"), false);
+  });
+
+  test("excluye enPortada false y publicada false", () => {
+    assert.equal(seccionEnPortada({ ...es, enPortada: false }, "es"), false);
+    assert.equal(seccionEnPortada({ ...es, publicada: false }, "es"), false);
+  });
+
+  test("una sección /en/ no sale en ninguna portada", () => {
+    const en = { ...es, ruta: "/en/x" };
+    assert.equal(seccionEnPortada(en, "es"), false);
+    assert.equal(seccionEnPortada(en, "fr"), false);
+  });
+});
+
+describe("portadas por idioma y secciones sin publicar", () => {
+  const SIN_PUBLICAR = { ...SECCION_FR, ruta: "/fr/zfe", proyecto: "zfe", publicada: false };
+  const TODAS = [...SECCIONES, SECCION_FR, SIN_PUBLICAR];
+  const CLIENTE = "pub-1234567890123456";
+
+  function prepararFrancia() {
+    const dirRaiz = path.join(tmp, "raiz");
+    escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "fr", "index.html"), PLANTILLA_FR);
+    escribir(path.join(dirRaiz, "fr", "404.html"), "<!-- ADSENSE -->404 fr");
+    for (const seccion of TODAS) {
+      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), seccion.proyecto);
+    }
+    return { secciones: TODAS, dirBase: tmp, dirRaiz, dist: path.join(tmp, "dist"), origen: ORIGEN, clienteAdsense: CLIENTE };
+  }
+
+  test("generarPortada en francés solo pinta las secciones francesas", () => {
+    const html = generarPortada(PLANTILLA_FR, TODAS, ORIGEN, "fr");
+    assert.ok(html.includes('href="/fr/prix"'));
+    assert.ok(!html.includes("/es/multas"));
+    assert.ok(!html.includes("/fr/zfe"));
+  });
+
+  test("generarPortada sin idioma pinta las españolas", () => {
+    const html = generarPortada(PLANTILLA, TODAS, ORIGEN);
+    assert.ok(html.includes('href="/es/multas"'));
+    assert.ok(!html.includes("/fr/prix"));
+  });
+
+  test("textoRobots omite las secciones con publicada false", () => {
+    const robots = textoRobots(ORIGEN, TODAS);
+    assert.ok(robots.includes("/fr/prix/sitemap.xml"));
+    assert.ok(!robots.includes("/fr/zfe"));
+  });
+
+  test("leerSecciones rechaza publicada que no es booleano", () => {
+    const base = { ruta: "/fr/x", proyecto: "x", nombre: "X", descripcion: "D" };
+    assert.throws(() => leerSecciones(escribirConfig([{ ...base, publicada: "no" }])), /publicada/);
+    assert.equal(leerSecciones(escribirConfig([{ ...base, publicada: false }]))[0].publicada, false);
+  });
+
+  test("ensamblar genera dist/fr/index.html y dist/fr/404.html con AdSense", () => {
+    const opciones = prepararFrancia();
+    ensamblar(opciones);
+    const portadaFr = fs.readFileSync(path.join(opciones.dist, "fr", "index.html"), "utf8");
+    assert.ok(portadaFr.includes('href="/fr/prix"'));
+    assert.ok(!portadaFr.includes("/es/multas"));
+    assert.ok(!portadaFr.includes("/fr/zfe"));
+    assert.doesNotMatch(portadaFr, /<!-- [A-Z]+ -->/);
+    assert.ok(portadaFr.includes("adsbygoogle.js?client=ca-pub-1234567890123456"));
+    const notFound = fs.readFileSync(path.join(opciones.dist, "fr", "404.html"), "utf8");
+    assert.ok(notFound.includes("adsbygoogle.js"));
+  });
+
+  test("dist/index.html no lista secciones francesas y robots.txt omite las sin publicar", () => {
+    const opciones = prepararFrancia();
+    ensamblar(opciones);
+    const portada = fs.readFileSync(path.join(opciones.dist, "index.html"), "utf8");
+    assert.ok(portada.includes('href="/es/multas"'));
+    assert.ok(!portada.includes("/fr/"));
+    const robots = fs.readFileSync(path.join(opciones.dist, "robots.txt"), "utf8");
+    assert.ok(!robots.includes("/fr/zfe"));
+  });
+
+  test("falta la plantilla francesa: el error nombra el fichero", () => {
+    const opciones = prepararFrancia();
+    fs.rmSync(path.join(opciones.dirRaiz, "fr", "index.html"));
+    assert.throws(() => ensamblar(opciones), /fr\/index\.html/);
+  });
+});
+
 describe("insertarAdsense", () => {
   const HTML = "<head><!-- ADSENSE --></head>";
 
@@ -655,4 +759,17 @@ describe("insertarAdsense", () => {
   test("con un cliente inválido lanza error", () => {
     assert.throws(() => insertarAdsense(HTML, "ca-pub-123"), /no válido/);
   });
+});
+
+describe("plantillas reales de portada en raiz/", () => {
+  const dirRaiz = path.join(import.meta.dirname, "..", "raiz");
+  for (const { idioma, plantilla } of PORTADAS) {
+    test(`raiz/${plantilla} tiene los marcadores y lang="${idioma}"`, () => {
+      const html = fs.readFileSync(path.join(dirRaiz, plantilla), "utf8");
+      for (const marcador of [MARCADOR_SECCIONES, MARCADOR_ORIGEN, MARCADOR_ADSENSE]) {
+        assert.ok(html.includes(marcador), `Falta ${marcador} en raiz/${plantilla}`);
+      }
+      assert.match(html, new RegExp(`<html lang="${idioma}"`));
+    });
+  }
 });
