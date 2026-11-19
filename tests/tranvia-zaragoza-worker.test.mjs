@@ -70,6 +70,7 @@ describe("worker del tranvía de Zaragoza", () => {
     const [url, opciones] = simulado.mock.calls[0].arguments;
     assert.equal(url, URL_ORIGEN_ESPERADA);
     assert.deepEqual(opciones.cf, { cacheTtl: 20, cacheEverything: true });
+    assert.equal(opciones.redirect, "error");
     assert.equal(opciones.headers, undefined);
     assert.ok(opciones.signal instanceof AbortSignal);
   });
@@ -78,6 +79,7 @@ describe("worker del tranvía de Zaragoza", () => {
     for (const anden of ["abc", "123", "12345", "1402/", "14a2", ""]) {
       const respuesta = await worker.fetch(peticion(`${BASE}/api/tram/${anden}`), entornoSimulado());
       assert.equal(respuesta.status, 400, anden);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
       assert.deepEqual(await respuesta.json(), { error: MENSAJE_ANDEN_INVALIDO });
       assert.equal(respuesta.headers.get("x-robots-tag"), "noindex");
     }
@@ -88,6 +90,7 @@ describe("worker del tranvía de Zaragoza", () => {
     for (const ruta of ["/api/", "/api/otra", "/api/tram"]) {
       const respuesta = await worker.fetch(peticion(`${BASE}${ruta}`), entornoSimulado());
       assert.equal(respuesta.status, 404, ruta);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
       assert.deepEqual(await respuesta.json(), { error: MENSAJE_NO_ENCONTRADO });
       assert.equal(respuesta.headers.get("x-robots-tag"), "noindex");
     }
@@ -97,6 +100,7 @@ describe("worker del tranvía de Zaragoza", () => {
     for (const metodo of ["POST", "PUT", "DELETE", "HEAD"]) {
       const respuesta = await worker.fetch(peticion(URL_API, { method: metodo }), entornoSimulado());
       assert.equal(respuesta.status, 405, metodo);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
       assert.equal(respuesta.headers.get("allow"), "GET");
       assert.equal(respuesta.headers.get("x-robots-tag"), "noindex");
       if (metodo !== "HEAD") {
@@ -112,6 +116,7 @@ describe("worker del tranvía de Zaragoza", () => {
     });
     const respuesta = await worker.fetch(peticion(), entornoSimulado());
     assert.equal(respuesta.status, 502);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
     assert.deepEqual(await respuesta.json(), { error: MENSAJE_ORIGEN });
     assert.equal(respuesta.headers.get("x-robots-tag"), "noindex");
   });
@@ -120,6 +125,7 @@ describe("worker del tranvía de Zaragoza", () => {
     simulado.mock.mockImplementation(async () => respuestaJson({ estimates: [] }, 500));
     const respuesta = await worker.fetch(peticion(), entornoSimulado());
     assert.equal(respuesta.status, 502);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
   });
 
   it("502: tiempo agotado a los 5 s", async () => {
@@ -135,6 +141,7 @@ describe("worker del tranvía de Zaragoza", () => {
     const respuesta = await pendiente;
     assert.equal(TIEMPO_MAXIMO_MS, 5000);
     assert.equal(respuesta.status, 502);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
     assert.deepEqual(await respuesta.json(), { error: MENSAJE_ORIGEN });
   });
 
@@ -144,6 +151,7 @@ describe("worker del tranvía de Zaragoza", () => {
       simulado.mock.mockImplementation(async () => cuerpo);
       const respuesta = await worker.fetch(peticion(), entornoSimulado());
       assert.equal(respuesta.status, 502);
+assert.equal(respuesta.headers.get("cache-control"), "no-store");
       assert.deepEqual(await respuesta.json(), { error: MENSAJE_ORIGEN });
     }
   });

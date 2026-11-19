@@ -11,7 +11,8 @@ export const MAX_AGE_RESPUESTA_S = 15;
 export const METODO_PERMITIDO = "GET";
 
 const TIPO_JSON = "application/json; charset=utf-8";
-const CABECERAS_ERROR = { "content-type": TIPO_JSON, "x-robots-tag": "noindex" };
+// Los errores no se cachean: el siguiente intento debe volver a consultar el origen.
+const CABECERAS_ERROR = { "content-type": TIPO_JSON, "x-robots-tag": "noindex", "cache-control": "no-store" };
 const CABECERAS_OK = { ...CABECERAS_ERROR, "cache-control": `public, max-age=${MAX_AGE_RESPUESTA_S}` };
 
 const ESTADO_OK = 200;
@@ -59,6 +60,8 @@ async function pedirOrigen(anden) {
     const respuesta = await fetch(`${URL_ORIGEN}${anden}`, {
       cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true },
       signal: controlador.signal,
+      // Solo se consulta el host fijo de DNDzgz: una redirección a otro sitio se trata como fallo.
+      redirect: "error",
     });
     if (!respuesta.ok) {
       throw new Error(`El origen respondió ${respuesta.status}.`);
