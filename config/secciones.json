@@ -86,5 +86,17 @@
       "marca/*/*"
     ],
     "enPortada": false
+  },
+  {
+    "ruta": "/fr/prix-carburants",
+    "proyecto": "../prix-carburants-fr",
+    "nombre": "Prix des carburants",
+    "descripcion": "Prix du gazole et de l'essence aujourd'hui dans chaque station-service de France, avec l'historique depuis 2016.",
+    "worker": "ododex-prix-carburants",
+    "paginasSoloHtml": [
+      "station/*",
+      "departement/*/*"
+    ],
+    "enPortada": false
   }
 ]

@@ -15,7 +15,7 @@ Todos los comandos se ejecutan desde `C:\Users\Usuario\Desktop\pruebas\ododex-si
 ### Actualizar gasolineras (cada día)
 
 - **Titular:** doble clic en "Actualizar gasolineras" en el escritorio. Al terminar, pulsa una tecla.
-- **Equivalente por comando:** `npm run actualizar:gasolineras`. Compila y despliega gasolineras y, a continuación, electrico-vs-gasolina (sus medias salen del mismo volcado).
+- **Equivalente por comando:** `npm run actualizar:gasolineras`. Compila y despliega gasolineras y, a continuación, electrico-vs-gasolina (sus medias salen del mismo volcado) y la web francesa `/fr/prix-carburants` (actualiza antes su histórico con `npm run historique:fr`).
 - Si falla la descarga de MITECO (la API a veces tarda o devuelve error), basta con repetirlo más tarde. La web sigue mostrando los precios del día anterior.
 
 ### Compilar y publicar todo

@@ -14,6 +14,7 @@ Arsys (registrador)  ──NS──▶  Cloudflare (DNS + proxy + HTTPS)
               │   ododex.com/es/puntos-recarga*    → Worker ododex-puntos-recarga
               │   ododex.com/es/llamadas-revision* → Worker ododex-llamadas-revision
               │   ododex.com/en/recalls*           → Worker ododex-recalls
+              │   ododex.com/fr/prix-carburants*   → Worker ododex-prix-carburants
               │ Dominio personalizado (todo lo demás)                     │
               │   ododex.com                       → Worker ododex
               │       /                  portada (raiz/)
@@ -41,6 +42,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-puntos-recarga` | /es/puntos-recarga | ~15 643 |
 | `ododex-llamadas-revision` | /es/llamadas-revision | ~14 733 |
 | `ododex-recalls` | /en/recalls | ~14 733 |
+| `ododex-prix-carburants` | /fr/prix-carburants | ~17 500 |
 | `ododex-zbe` | /es/zbe | ~6 621 |
 | `ododex-electrico-vs-gasolina` | /es/electrico-vs-gasolina | ~334 (Worker propio para actualizarlo cada día sin redesplegar el principal) |
 | `ododex-itv` | /es/itv | ~3 000 |
@@ -166,6 +168,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `es-itv` | /es/itv | Centros ITV (OSM), calculadora de fechas y tarifas por comunidad |
 | `charger-map` | /es/puntos-recarga | Publicado |
 | `recalls-web` | /es/llamadas-revision y /en/recalls | Publicado |
+| `prix-carburants-fr` | /fr/prix-carburants (Francia, en francés) | Lista; publicación pendiente |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
 | `uk-petrostation` | Gasolineras de Reino Unido | Sin publicar (sin datos reales) |
 | `uk-ulez-map` | ULEZ de Londres | Sin publicar (necesita clave DVLA y servidor) |

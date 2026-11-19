@@ -69,6 +69,33 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## prix-carburants-fr — /fr/prix-carburants
+
+| | |
+|---|---|
+| URL | https://ododex.com/fr/prix-carburants |
+| Repositorio | Local (rama `master`), sin remoto en GitHub todavía |
+| Worker | `ododex-prix-carburants` |
+| Ficheros | ~17 500 (15 500 páginas + 1 056 particiones de histórico) |
+| Datos | Flujo instantáneo de data.economie.gouv.fr (unas 9 800 estaciones) y ficheros anuales de donnees.roulez-eco.fr (histórico desde 2016) |
+
+**Qué ofrece (en francés):** lo mismo que gasolineras para Francia: buscador con mapa, páginas por departamento y municipio, ficha por estación (precios con fecha, horario, servicios, histórico) y páginas de histórico por Francia, región y departamento.
+
+**Cómo se construye:**
+- Port de `gasolineras`; contrato en `prix-carburants-fr/ARCHITECTURE.md`.
+- `npm run build` ejecuta `preparar-datos` (descarga el flujo a `data/cache/prix-snapshot.json` y genera `public/datos/stations.json`).
+- `npm run historique` descarga los zips anuales y genera `data/historique/` y `public/historique-stations/` (nada de eso está en git; se regenera desde la fuente). Tras la primera vez solo reprocesa el año en curso (~10 s).
+- Fichas `station/*` y municipios `departement/*/*` solo HTML.
+- `enPortada: false`: la portada de ododex.com está en español.
+
+**Actualización diaria:** incluida al final de `npm run actualizar:gasolineras` (`historique:fr`, compilación y despliegue de `/fr/prix-carburants`).
+
+**Particularidades:**
+- Los datos franceses no traen la marca de la estación: no hay logos ni filtro de marca.
+- El titular reside en España: las mentions légales aplican derecho español y citan la AEPD y la CNIL.
+
+---
+
 ## gasolineras — /es/gasolineras
 
 | | |
