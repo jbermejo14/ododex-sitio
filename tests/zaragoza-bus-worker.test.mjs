@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it, mock } from "node:test";
-import worker, {
-  MENSAJE_METODO,
-  MENSAJE_NO_ENCONTRADO,
-  MENSAJE_ORIGEN,
-  MENSAJE_POSTE_INVALIDO,
-  TIEMPO_MAXIMO_MS,
-  extraerFilasAvanza,
-  mapearDndzgz,
-} from "../workers/zaragoza-bus.mjs";
+import worker, { extraerFilasAvanza, mapearDndzgz } from "../workers/zaragoza-bus.mjs";
 
+const TIEMPO_MAXIMO_MS = 5000;
+const MENSAJE_POSTE_INVALIDO = "El poste debe ser un número de uno a cinco dígitos.";
+const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
+const MENSAJE_METODO = "Método no permitido: usa GET.";
+const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del autobús. Inténtalo de nuevo en unos segundos.";
 const BASE = "https://ododex.com/es/zaragoza-bus";
 const POSTE = "104";
 const URL_API = `${BASE}/api/poste/${POSTE}`;
@@ -163,7 +160,6 @@ describe("worker del autobús de Zaragoza", () => {
     const pendiente = worker.fetch(peticion(), entornoSimulado());
     mock.timers.tick(TIEMPO_MAXIMO_MS);
     const respuesta = await pendiente;
-    assert.equal(TIEMPO_MAXIMO_MS, 5000);
     assert.equal((await respuesta.json()).origen, "dndzgz");
   });
 
@@ -177,7 +173,7 @@ describe("worker del autobús de Zaragoza", () => {
     for (const llamada of simulado.mock.calls) {
       const opciones = llamada.arguments[1];
       assert.deepEqual(opciones.cf, { cacheTtl: 20, cacheEverything: true });
-      assert.equal(opciones.redirect, "error");
+      assert.equal(opciones.redirect, "manual");
       assert.equal(opciones.headers, undefined);
       assert.ok(opciones.signal instanceof AbortSignal);
     }
@@ -295,6 +291,20 @@ describe("mapearDndzgz", () => {
   it("devuelve null si el formato no es { estimates: [...] }", () => {
     for (const datos of [null, undefined, 3, "x", [], {}, { estimates: {} }]) {
       assert.equal(mapearDndzgz(datos), null);
+    }
+  });
+});
+
+describe("exportaciones del módulo", () => {
+  it("toda exportación con nombre es una función: workerd rechaza las que no lo son", async () => {
+    const modulo = await import("../workers/zaragoza-bus.mjs");
+    for (const [nombre, valor] of Object.entries(modulo)) {
+      if (nombre === "default") continue;
+      assert.equal(
+        typeof valor,
+        "function",
+        `La exportación «${nombre}» no es una función: workerd trata cada exportación con nombre como punto de entrada y rechaza las que no son funciones, clases o handlers.`,
+      );
     }
   });
 });

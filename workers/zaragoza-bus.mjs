@@ -2,17 +2,17 @@
 // reales. Origen principal: la web pública de Avanza (HTML en ISO-8859-1); respaldo: la API de
 // DNDzgz. Ninguno envía cabeceras CORS. Se despliega sin empaquetar (no_bundle).
 
-export const URL_AVANZA = "https://zaragoza-pasobus.avanzagrupo.com/frm_esquemaparadatime.php?poste=";
-export const URL_DNDZGZ = "https://api.dndzgz.com/services/bus/";
-export const PREFIJO_API = "/es/zaragoza-bus/api/";
-export const PREFIJO_RUTA_POSTE = `${PREFIJO_API}poste/`;
-export const PATRON_POSTE = /^\d{1,5}$/;
-export const TIEMPO_MAXIMO_MS = 5000;
-export const TTL_CACHE_ORIGEN_S = 20;
-export const MAX_AGE_RESPUESTA_S = 15;
-export const METODO_PERMITIDO = "GET";
-export const ORIGEN_AVANZA = "avanza";
-export const ORIGEN_DNDZGZ = "dndzgz";
+const URL_AVANZA = "https://zaragoza-pasobus.avanzagrupo.com/frm_esquemaparadatime.php?poste=";
+const URL_DNDZGZ = "https://api.dndzgz.com/services/bus/";
+const PREFIJO_API = "/es/zaragoza-bus/api/";
+const PREFIJO_RUTA_POSTE = `${PREFIJO_API}poste/`;
+const PATRON_POSTE = /^\d{1,5}$/;
+const TIEMPO_MAXIMO_MS = 5000;
+const TTL_CACHE_ORIGEN_S = 20;
+const MAX_AGE_RESPUESTA_S = 15;
+const METODO_PERMITIDO = "GET";
+const ORIGEN_AVANZA = "avanza";
+const ORIGEN_DNDZGZ = "dndzgz";
 
 const CODIFICACION_AVANZA = "iso-8859-1";
 const MARCA_CABECERA_POSTE = "POSTE:";
@@ -35,10 +35,10 @@ const ESTADO_NO_ENCONTRADO = 404;
 const ESTADO_METODO_NO_PERMITIDO = 405;
 const ESTADO_ORIGEN_FALLIDO = 502;
 
-export const MENSAJE_POSTE_INVALIDO = "El poste debe ser un número de uno a cinco dígitos.";
-export const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
-export const MENSAJE_METODO = "Método no permitido: usa GET.";
-export const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del autobús. Inténtalo de nuevo en unos segundos.";
+const MENSAJE_POSTE_INVALIDO = "El poste debe ser un número de uno a cinco dígitos.";
+const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
+const MENSAJE_METODO = "Método no permitido: usa GET.";
+const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del autobús. Inténtalo de nuevo en unos segundos.";
 
 /** Respuesta JSON de error con el mensaje en español. */
 function respuestaError(estado, mensaje, cabecerasExtra = {}) {
@@ -103,8 +103,9 @@ async function pedirOrigen(url, leerCuerpo) {
     const respuesta = await fetch(url, {
       cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true },
       signal: controlador.signal,
-      // Solo se consultan hosts fijos: una redirección a otro sitio se trata como fallo.
-      redirect: "error",
+      // Solo se consultan hosts fijos: una redirección no se sigue y su 3xx cae en el !ok de abajo.
+      // El runtime de Workers no admite redirect: "error".
+      redirect: "manual",
     });
     if (!respuesta.ok) {
       throw new Error(`El origen respondió ${respuesta.status}.`);
