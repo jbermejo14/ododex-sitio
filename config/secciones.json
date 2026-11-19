@@ -23,6 +23,13 @@
     ]
   },
   {
+    "ruta": "/es/electrico-vs-gasolina",
+    "proyecto": "../electrico-vs-gasolina",
+    "nombre": "Eléctrico o gasolina",
+    "descripcion": "Calcula cuánto cuesta el kilómetro con un coche eléctrico frente a uno de gasolina o diésel, con los precios medios de hoy en tu provincia.",
+    "worker": "ododex-electrico-vs-gasolina"
+  },
+  {
     "ruta": "/es/zbe",
     "proyecto": "../zbe-map",
     "nombre": "Zonas de bajas emisiones",

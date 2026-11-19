@@ -41,3 +41,13 @@ Registro de las decisiones importantes, con su motivo y las alternativas descart
 | Siguiente web: **puntos de recarga** (charger-map) | Ya tenía datos completos (RIPREE) y encaja con ZBE | vehicle-stats (menos dinero), UK (bloqueadas) |
 | Puntos de recarga: `mapa.json` compacto (menos de 1,5 MB) | El mapa nacional necesita todos los puntos sin API | Peticiones a una API |
 | Documentación central en `ododex-sitio/docs` | Poder continuar desde otra sesión o tras exportar | — |
+
+## 19/11/2026
+
+| Decisión | Motivo | Descartado |
+|---|---|---|
+| Web nueva **electrico-vs-gasolina** en `/es/electrico-vs-gasolina` | Ruta que coincide con la búsqueda más común ("eléctrico vs gasolina") | Página dentro de gasolineras |
+| Precios de combustible: **medias de MITECO** del `estaciones.json` de gasolineras | Dato real y diario sin otra descarga | Precios fijos |
+| Precios de recarga: **tarifas por operador del titular** (noviembre de 2026), marcadas como orientativas | RIPREE no publica precios | Una tarifa única de ejemplo; API PVPC de REE |
+| **Worker propio** y recompilación en la actualización diaria de gasolineras | Medias del mismo día sin redesplegar el Worker principal | Ir en el Worker `ododex` |
+| Slug de URL propio (`a-coruna`) en vez del de MITECO (`coruna-a`) | Mejor para SEO | Reutilizar el slug de MITECO |

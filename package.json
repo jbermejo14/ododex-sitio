@@ -7,7 +7,7 @@
     "build:sin-compilar": "node scripts/construir.mjs --sin-compilar",
     "preview": "node scripts/previsualizar.mjs",
     "deploy": "node scripts/desplegar.mjs",
-    "actualizar:gasolineras": "node scripts/construir.mjs --solo /es/gasolineras && node scripts/desplegar.mjs --solo /es/gasolineras",
+    "actualizar:gasolineras": "node scripts/construir.mjs --solo /es/gasolineras && node scripts/construir.mjs --solo /es/electrico-vs-gasolina && node scripts/desplegar.mjs --solo /es/gasolineras && node scripts/desplegar.mjs --solo /es/electrico-vs-gasolina",
     "test": "node --test \"tests/**/*.test.mjs\""
   },
   "devDependencies": {

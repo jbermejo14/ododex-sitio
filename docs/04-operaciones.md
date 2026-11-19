@@ -15,7 +15,7 @@ Todos los comandos se ejecutan desde `C:\Users\Usuario\Desktop\pruebas\ododex-si
 ### Actualizar gasolineras (cada día)
 
 - **Titular:** doble clic en "Actualizar gasolineras" en el escritorio. Al terminar, pulsa una tecla.
-- **Equivalente por comando:** `npm run actualizar:gasolineras`.
+- **Equivalente por comando:** `npm run actualizar:gasolineras`. Compila y despliega gasolineras y, a continuación, electrico-vs-gasolina (sus medias salen del mismo volcado).
 - Si falla la descarga de MITECO (la API a veces tarda o devuelve error), basta con repetirlo más tarde. La web sigue mostrando los precios del día anterior.
 
 ### Compilar y publicar todo
@@ -49,6 +49,7 @@ Para reensamblar sin recompilar (por ejemplo, tras cambiar la portada): `npm run
 | Multas (radares) | Descargar el XML del NAP a `scripts/sample.xml` y `node scripts/build-radars-dataset.mjs` (multas-dgt) | Trimestral |
 | Multas (infracciones) | Revisar las normas del BOE y actualizar la fecha de verificación en `src/data/infractions.ts` | Antes de 365 días (lo exige una prueba) |
 | Impuestos | Tablas del BOE de precios medios y tipos del ITP | Cada enero |
+| Eléctrico vs gasolina (tarifas de recarga) | Editar `data/charging-prices.json` y su `updated_at` (electrico-vs-gasolina) | Cuando cambien las tarifas; revisar cada trimestre |
 
 Después de refrescar: pruebas del proyecto, `npm run build -- --solo <ruta>` y `npm run deploy -- --solo <ruta>` en ododex-sitio.
 

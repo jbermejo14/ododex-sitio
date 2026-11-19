@@ -8,6 +8,7 @@ Arsys (registrador)  ──NS──▶  Cloudflare (DNS + proxy + HTTPS)
               ┌────────────────────┼─────────────────────────────────────┐
               │ Routes de zona (se evalúan ANTES que el dominio)          │
               │   ododex.com/es/gasolineras*       → Worker ododex-gasolineras
+              │   ododex.com/es/electrico-vs-gasolina* → Worker ododex-electrico-vs-gasolina
               │   ododex.com/es/zbe*               → Worker ododex-zbe
               │   ododex.com/es/puntos-recarga*    → Worker ododex-puntos-recarga
               │   ododex.com/es/llamadas-revision* → Worker ododex-llamadas-revision
@@ -40,6 +41,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-llamadas-revision` | /es/llamadas-revision | ~14 733 |
 | `ododex-recalls` | /en/recalls | ~14 733 |
 | `ododex-zbe` | /es/zbe | ~6 621 |
+| `ododex-electrico-vs-gasolina` | /es/electrico-vs-gasolina | ~334 (Worker propio para actualizarlo cada día sin redesplegar el principal) |
 
 `comprobarLimitesPages` (en `lib/ensamblado.mjs`) falla el ensamblado si una salida supera 20 000 ficheros o algún fichero supera 25 MiB.
 
@@ -158,6 +160,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `calculadora-impuestos` | /es/impuestos | Publicado |
 | `gasolineras` | /es/gasolineras | Publicado (actualización diaria) |
 | `zbe-map` | /es/zbe | Publicado |
+| `electrico-vs-gasolina` | /es/electrico-vs-gasolina | Lista, sin publicar |
 | `charger-map` | /es/puntos-recarga | Publicado |
 | `recalls-web` | /es/llamadas-revision y /en/recalls | Publicado |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |

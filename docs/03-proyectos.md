@@ -91,11 +91,38 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 - Las fichas de gasolinera (`gasolinera/*`) y de municipio (`provincia/*/*`) son solo HTML; los enlaces van con `InternalLink`.
 - El histórico de estaciones sale de `public/historico-estaciones` (572 ficheros), generado con `npm run historico`.
 
-**Actualización diaria:** el titular hace doble clic en el acceso directo del escritorio **"Actualizar gasolineras"**, que apunta a `ododex-sitio/Actualizar gasolineras.bat`. Este ejecuta `npm run actualizar:gasolineras`: descarga MITECO, compila solo gasolineras, despliega solo su Worker y espera una tecla. Tarda unos 10 minutos.
+**Actualización diaria:** el titular hace doble clic en el acceso directo del escritorio **"Actualizar gasolineras"**, que apunta a `ododex-sitio/Actualizar gasolineras.bat`. Este ejecuta `npm run actualizar:gasolineras`: descarga MITECO, compila gasolineras y después electrico-vs-gasolina (que toma de ella las medias de precio), despliega sus dos Workers y espera una tecla. Tarda unos 10-12 minutos.
 
 **Particularidades:**
 - Hay un fichero sin commitear, probablemente `tsconfig.tsbuildinfo`, que es inocuo.
 - Cada despliegue sube ~1 GB; wrangler solo sube los ficheros cambiados (por hash), pero cambian casi todas las páginas de precio.
+
+---
+
+## electrico-vs-gasolina — /es/electrico-vs-gasolina
+
+| | |
+|---|---|
+| URL | https://ododex.com/es/electrico-vs-gasolina (**sin publicar todavía**) |
+| Repositorio | Local, rama `main`, sin remoto |
+| Worker | `ododex-electrico-vs-gasolina` |
+| Ficheros | ~334 |
+| Pruebas | 150 |
+| Datos | Medias de gasolina 95 y diésel (MITECO, del `estaciones.json` de gasolineras) y tarifas de recarga por operador en `data/charging-prices.json` (recopiladas a mano por el titular, noviembre de 2026, orientativas) |
+
+**Qué ofrece:**
+- calculadora de coste por km, por 100 km y por año: combustión frente a eléctrico, con reparto casa/recarga pública, tarifa de casa, operador y potencia de recarga;
+- página por provincia (52) con su precio medio, comparación con la media de España y posición en el ranking;
+- ranking de provincias, tabla de tarifas por operador y preguntas frecuentes con cifras calculadas.
+
+**Cómo se construye:**
+- `npm run build` ejecuta antes `npm run import-fuel`, que lee `../gasolineras/public/datos/estaciones.json` y escribe `data/fuel-prices.json` (fuera de git). Por eso va **después de gasolineras** en `secciones.json`.
+- La actualización diaria (`npm run actualizar:gasolineras`) compila y despliega también esta sección, para que las medias sean del mismo día.
+- URL de provincia con slug propio (`a-coruna`, `las-palmas`); el enlace a gasolineras usa el slug de MITECO (`coruna-a`).
+
+**Particularidades:**
+- RIPREE no publica precios: las tarifas de recarga son datos del titular. Para cambiarlas, editar `data/charging-prices.json` (ver el README del proyecto).
+- Instalación en Windows: `npm install --force --cpu=wasm32`.
 
 ---
 

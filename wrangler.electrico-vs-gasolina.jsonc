@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de la calculadora eléctrico vs gasolina: se recompila y despliega cada día
+  // junto a gasolineras (npm run actualizar:gasolineras) sin tocar el Worker principal.
+  // La route lleva /es/electrico-vs-gasolina* a este Worker; se ejecuta antes que el dominio
+  // personalizado del Worker principal (wrangler.jsonc).
+  "name": "ododex-electrico-vs-gasolina",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/electrico-vs-gasolina*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-electrico-vs-gasolina",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
