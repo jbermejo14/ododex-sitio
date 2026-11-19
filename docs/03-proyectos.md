@@ -101,7 +101,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 | | |
 |---|---|
 | URL | https://ododex.com/fr/zfe (sin publicar) |
-| Repositorio | Local (rama `main`), sin remoto en GitHub todavía |
+| Repositorio | github.com/jbermejo14/fr-zbe (rama `main`) |
 | Worker | `ododex-zfe` |
 | Ficheros | ~132 |
 | Datos | `public/datos/aires.geojson` con el esquema de la Base Nationale des ZFE (transport.data.gouv.fr). **Ahora mismo, datos de ejemplo** |
