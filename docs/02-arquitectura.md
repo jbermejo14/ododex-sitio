@@ -168,7 +168,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `es-itv` | /es/itv | Centros ITV (OSM), calculadora de fechas y tarifas por comunidad |
 | `charger-map` | /es/puntos-recarga | Publicado |
 | `recalls-web` | /es/llamadas-revision y /en/recalls | Publicado |
-| `prix-carburants-fr` | /fr/prix-carburants (Francia, en francés) | Lista; publicación pendiente |
+| `prix-carburants-fr` | /fr/prix-carburants (Francia, en francés) | Publicado (actualización diaria con gasolineras) |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
 | `uk-petrostation` | Gasolineras de Reino Unido | Sin publicar (sin datos reales) |
 | `uk-ulez-map` | ULEZ de Londres | Sin publicar (necesita clave DVLA y servidor) |
