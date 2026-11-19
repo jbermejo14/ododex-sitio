@@ -53,6 +53,10 @@ Para reensamblar sin recompilar (por ejemplo, tras cambiar la portada): `npm run
 
 Después de refrescar: pruebas del proyecto, `npm run build -- --solo <ruta>` y `npm run deploy -- --solo <ruta>` en ododex-sitio.
 
+### Regenerar los enlaces entre secciones
+
+Tras compilar todas las secciones, `npm run red` actualiza `config/red-enlaces.json` (con el recuento de provincias, municipios y ciudades ZBE emparejados). Vuelve a compilar las webs para que lo recojan (`ODODEX_RED_ENLACES` la pone `construir.mjs`). Si falta un sitemap, avisa y esa sección queda sin enlaces.
+
 ### Añadir una sección nueva
 
 1. **En la web:** aplicar el patrón común (ver [02-arquitectura.md](02-arquitectura.md), "Cada web"):

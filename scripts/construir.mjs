@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DIR_SALIDA, comandoCompilacion, ensamblar, leerOpcionSolo, leerProduccion, leerSecciones, textoAdsTxt } from "../lib/ensamblado.mjs";
@@ -6,6 +7,12 @@ import { DIR_SALIDA, comandoCompilacion, ensamblar, leerOpcionSolo, leerProducci
 const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FLAG_SIN_COMPILAR = "--sin-compilar";
 const CODIGO_ERROR = 1;
+const FICHERO_RED_ENLACES = path.join(DIR_BASE, "config", "red-enlaces.json");
+
+/** Variable con la ruta de los enlaces entre secciones; solo se pasa si el fichero existe. */
+function entornoRedEnlaces() {
+  return fs.existsSync(FICHERO_RED_ENLACES) ? { ODODEX_RED_ENLACES: FICHERO_RED_ENLACES } : {};
+}
 
 function compilarSeccion(seccion, origen, clienteAdsense, unidadAdsense) {
   const resultado = spawnSync(comandoCompilacion(seccion), {
@@ -17,6 +24,7 @@ function compilarSeccion(seccion, origen, clienteAdsense, unidadAdsense) {
       NEXT_PUBLIC_SITE_URL: origen,
       NEXT_PUBLIC_ADSENSE_CLIENT: clienteAdsense,
       NEXT_PUBLIC_ADSENSE_SLOT: unidadAdsense,
+      ...entornoRedEnlaces(),
       ...seccion.entorno,
     },
   });

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/construir.mjs",
     "build:sin-compilar": "node scripts/construir.mjs --sin-compilar",
+    "red": "node scripts/generar-red.mjs",
     "preview": "node scripts/previsualizar.mjs",
     "deploy": "node scripts/desplegar.mjs",
     "actualizar:gasolineras": "node scripts/construir.mjs --solo /es/gasolineras && node scripts/construir.mjs --solo /es/electrico-vs-gasolina && node scripts/desplegar.mjs --solo /es/gasolineras && node scripts/desplegar.mjs --solo /es/electrico-vs-gasolina && npm run historique:fr && node scripts/construir.mjs --solo /fr/prix-carburants && node scripts/desplegar.mjs --solo /fr/prix-carburants",

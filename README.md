@@ -105,6 +105,10 @@ Antes de ensamblar hay que compilar `../recalls-web` (`npm run build` de este pr
 
 Los precios cambian a diario. Haz doble clic en `Actualizar gasolineras.bat` (o ejecuta `npm run actualizar:gasolineras`): compila solo `/es/gasolineras`, regenera solo `dist-gasolineras/` y despliega solo `ododex-gasolineras`. No toca el Worker principal. Las opciones `--solo /es/gasolineras` de `scripts/construir.mjs` y `scripts/desplegar.mjs` permiten hacer lo mismo con otra sección. No lo ejecutes si no quieres publicar.
 
+### Enlaces entre secciones
+
+`npm run red` lee los `sitemap.xml` ya compilados (`dist*/…`) y los datos de `../zbe-map`, y escribe `config/red-enlaces.json` (se versiona). `construir.mjs` pasa su ruta a cada web en `ODODEX_RED_ENLACES`. Se ejecuta a mano tras una compilación completa; no forma parte de la actualización diaria. Detalle en ARCHITECTURE.md, sección 10.
+
 ### Pruebas
 
 ```bash
