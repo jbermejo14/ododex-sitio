@@ -112,6 +112,11 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - Sustituir `public/datos/aires.geojson` por el fichero oficial de la Base Nationale des ZFE, verificar los SIREN, `perimeterLabel` e `infoUrl` de `data/zfe-cities.json` y poner `AIRES_DATA_IS_SAMPLE = false`. Hasta entonces no publicar.
 - Publicar con `npm run build` (completo, para que `robots.txt` incluya `/fr/zfe/sitemap.xml`) y `npm run deploy -- --solo /fr/zfe` más el Worker principal.
 
+### Radares Francia (radars-fr)
+- Cargar el CSV completo de radares (`npm run import:radars -- <csv>`), buscar una fuente más reciente que la de 2018 con la misma cabecera, ajustar `tests/radars-json.test.ts` y poner `RADARS_DATA_IS_SAMPLE = false`. Hasta entonces no publicar.
+- Publicar con `npm run build` (completo, para `robots.txt` y la portada francesa), `publicada: true` en `secciones.json` y `npm run deploy -- --solo /fr/radars` más el Worker principal.
+- Subir el repositorio a GitHub.
+
 ### Llamadas a revisión
 - Automatizar la descarga del XML de Safety Gate si existe un enlace estable.
 - Bloque de carVertical ("comprueba si tu coche tiene revisiones pendientes").

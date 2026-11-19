@@ -122,6 +122,30 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## radars-fr — /fr/radars
+
+| | |
+|---|---|
+| URL | https://ododex.com/fr/radars (sin publicar) |
+| Repositorio | Solo local (`radars-fr`, sin remoto) |
+| Worker | `ododex-radars` |
+| Ficheros | ~148 con el extracto |
+| Datos | `public/datos/radars.json`, generado con `npm run import:radars` desde el CSV de radares automáticos del ministerio del Interior (data.gouv.fr). **Ahora mismo, extracto de 13 departamentos de la versión de 2018** |
+
+**Qué ofrece (en francés):** calculadora de la amende y los puntos por exceso de velocidad con radar fijo (marge technique, amende forfaitaire / minorée / majorée, puntos restantes con permiso normal o probatoire, plazo de recuperación y medidas), mapa Leaflet con agrupación de marcadores, filtros por los 6 tipos de radar y buscador por departamento o código postal, y una página por departamento (`/fr/radars/<code>-<nom>`) con contadores, límite más frecuente, lista y barème.
+
+**Cómo se construye:**
+- Equivalente francés de `multas-dgt` con el patrón técnico de `zfe-fr`; contrato y reglas legales en `radars-fr/ARCHITECTURE.md`.
+- `leaflet.markercluster` 1.5.3 es la única dependencia nueva.
+- `npm test` usa `node --test` con el cargador de `zfe-fr` (sin tsx).
+- Al instalar con `--cpu=wasm32`, npm omite `lightningcss-win32-x64-msvc`: hay que copiarlo de otro proyecto (ver su README).
+
+**Particularidades:**
+- El exceso ≥ 50 km/h se trata como **delito** (vigente desde el 29/12/2025), no como contravención de 5ª clase.
+- Mientras `RADARS_DATA_IS_SAMPLE` sea `true` (`lib/radar-source.ts`), todas las páginas muestran « Données d'exemple » y llevan `noindex, follow`.
+
+---
+
 ## gasolineras — /es/gasolineras
 
 | | |

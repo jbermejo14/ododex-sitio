@@ -16,6 +16,7 @@ Arsys (registrador)  ──NS──▶  Cloudflare (DNS + proxy + HTTPS)
               │   ododex.com/en/recalls*           → Worker ododex-recalls
               │   ododex.com/fr/prix-carburants*   → Worker ododex-prix-carburants
               │   ododex.com/fr/zfe*               → Worker ododex-zfe
+              │   ododex.com/fr/radars*            → Worker ododex-radars
               │ Dominio personalizado (todo lo demás)                     │
               │   ododex.com                       → Worker ododex
               │       /                  portada (raiz/)
@@ -49,6 +50,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-electrico-vs-gasolina` | /es/electrico-vs-gasolina | ~334 (Worker propio para actualizarlo cada día sin redesplegar el principal) |
 | `ododex-itv` | /es/itv | ~3 000 |
 | `ododex-zfe` | /fr/zfe | ~132 (Worker propio para publicar y cambiar sus datos sin redesplegar el principal) |
+| `ododex-radars` | /fr/radars | ~148 con el extracto (Worker propio, como zfe) |
 
 `comprobarLimitesPages` (en `lib/ensamblado.mjs`) falla el ensamblado si una salida supera 20 000 ficheros o algún fichero supera 25 MiB.
 
@@ -103,7 +105,7 @@ ododex-sitio/
 | `exportacion` | no | Carpeta de salida de Next si no es `out` (ej. `out-es`). |
 | `scriptBuild` | no | Script de npm a ejecutar si no es `build` (ej. `build:es`). |
 | `enPortada` | no | `false` para no mostrarla en la portada de su idioma (recalls en inglés). |
-| `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe`). |
+| `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe` y `/fr/radars`). |
 
 ### `config/produccion.json`
 
@@ -174,6 +176,7 @@ Todas las webs publicadas siguen el mismo patrón, aunque vengan de proyectos di
 | `recalls-web` | /es/llamadas-revision y /en/recalls | Publicado |
 | `prix-carburants-fr` | /fr/prix-carburants (Francia, en francés) | Publicado (actualización diaria con gasolineras) |
 | `zfe-fr` | /fr/zfe (Francia, en francés) | Integrada en el ensamblado; sin publicar (datos de ejemplo) |
+| `radars-fr` | /fr/radars (Francia, en francés) | Integrada en el ensamblado; sin publicar (extracto de radares de 2018) |
 | `vehicle-stats` | Estadísticas del parque (microdatos DGT) | Sin publicar |
 | `uk-petrostation` | Gasolineras de Reino Unido | Sin publicar (sin datos reales) |
 | `uk-ulez-map` | ULEZ de Londres | Sin publicar (necesita clave DVLA y servidor) |
