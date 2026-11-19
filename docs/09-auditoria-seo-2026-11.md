@@ -201,3 +201,21 @@ Se cambia en Cloudflare → AI Crawl Control (o "Bots" → "Manage robots.txt").
 ## Cómo repetir la auditoría
 
 El script usado está en `scripts/auditoria-seo.mjs`. Ejecución: `node scripts/auditoria-seo.mjs informe.json`. Escribe el detalle en JSON y una línea por tipo de página en la consola. Conviene repetirlo tras cada mejora y compararlo con los datos de Search Console (páginas indexadas por tipo) cuando estén disponibles.
+
+## Revisión del 19/11/2026 (tarde)
+
+Nueva medición por muestreo (unas 150 páginas, 10 webs) y correcciones publicadas el mismo día:
+
+- **Títulos ≤ 65 caracteres con « | Ododex » y descripciones de 120-160** en multas (infracciones y radares por carretera), impuestos (ITP, matriculación, guías, portada), puntos de recarga (operadores, calculadora, portada) y prix-carburants (todas las páginas). Cada proyecto lo documenta en su `ARCHITECTURE.md` y lo comprueba con pruebas sobre los datos reales.
+- **Contenido corregido:** ITP de Ceuta y Melilla con el tipo general (4 %), « 1 radar » en singular, nombres de operador legibles (sin mayúsculas sostenidas), títulos de ficha francesa casi sin duplicados (16 de 9 821).
+- **JSON-LD `WebApplication`** en las portadas de impuestos y puntos de recarga.
+- **Sitemap francés** sin las páginas legales (`noindex`).
+
+Pendiente de la revisión (ver el análisis del 19/11 en la conversación con el titular):
+
+- Titular: « Always Use HTTPS », registro `www`, Search Console y aprobación de AdSense.
+- `og:image` en todas las secciones.
+- Enlaces entre secciones (la mayoría de páginas no enlaza a otras webs de la red).
+- Contenido propio en las 52 páginas por provincia de eléctrico-vs-gasolina (63 % de parecido).
+- Páginas de ZBE por ciudad y etiqueta todavía parecidas en las grandes ciudades (Barcelona B frente a C: 73 %).
+- Valorar `noindex` en los niveles más flojos si Search Console no los indexa.
