@@ -94,7 +94,7 @@ Ninguna página tiene `og:image`.
 > **Pendiente:**
 > - el texto "menos de 100 m" de gasolineras (commit `0cfd12e`) se publicará con la próxima actualización diaria;
 > - el punto final que traen algunos operadores en los datos de RIPREE ("Barcelona.") se sigue mostrando;
-> - quedan ZBE por ciudad y etiqueta, llamadas a revisión y radares.
+> - quedan llamadas a revisión y radares (ZBE hecho el 19/11/2026, ver abajo).
 
 La regla para cada ficha es que tenga al menos una cosa útil que no esté en ninguna otra página, y enlaces a sus vecinas.
 
@@ -123,6 +123,38 @@ La regla para cada ficha es que tenga al menos una cosa útil que no esté en ni
   - excepciones con detalle;
   - enlaces a gasolineras y puntos de recarga de la ciudad.
 - **Cero emisiones y ECO:** donde la respuesta es "puede entrar siempre", valorar `noindex` o canonical a la página de la ciudad.
+
+> **Estado (19/11/2026): hecho y publicado.** Detalle en las secciones Z7, Z8 y Z9 de `zbe-map/ARCHITECTURE.md`.
+>
+> - **Z7.** Cada página de ciudad y etiqueta incluye:
+>   - una comparación con el resto de España y con su comunidad, con enlaces a las demás ciudades;
+>   - enlaces a las gasolineras y a los puntos de recarga del municipio, y a la calculadora de etiqueta.
+>
+>   Los títulos se quedan en 60 caracteres o menos y las descripciones en 160 o menos (antes, 185-240).
+> - **Z8.** Perímetros oficiales de Barcelona, Valencia, Zaragoza y Málaga.
+> - **Z9.** Estado real de cada ZBE con datos de **Atlas ZBE** (ODbL 1.0; `data/zbe-cities.json` pasa a ser base derivada bajo ODbL y se cita en el pie):
+>   - aviso de estado (se multa, aviso, en tramitación, suspendida…);
+>   - reglas por etiqueta;
+>   - calendario por ciudad y etiqueta;
+>   - multa con pronto pago;
+>   - excepciones;
+>   - geometría oficial.
+>
+>   Corrige un error grave de los datos: 51 ciudades sin ZBE en vigor según el MITECO mostraban prohibiciones.
+> - **No se ha puesto `noindex`** en CERO y ECO: con el estado y el calendario ya no son copias.
+> **Corregido en ZBE el 19/11/2026.**
+> | Par de páginas | Palabras | Parecido (antes 67 %) |
+> |---|---|---|
+> | Sevilla/B frente a Bilbao/B | 410 / 574 | 19 % |
+> | Córdoba/C frente a Granada/C | 519 / 419 | 23 % |
+> | Madrid/sin etiqueta frente a Zaragoza/sin etiqueta | 605 / 596 | 17 % |
+> | Gijón/B frente a Leganés/B (ZBE en tramitación) | 358 / 373 | 47 % |
+>
+> **Pendiente:**
+> - **Las 51 ciudades en tramitación** siguen pareciéndose entre sí (47 %). Si Search Console no las indexa, valorar `noindex` en sus páginas por etiqueta y dejar solo la de la ciudad.
+> - **Datos de Atlas ZBE:** se actualizan cada día; hay que reimportarlos de vez en cuando (procedimiento en el README de zbe-map).
+> - **Madrid:** el CSV de cámaras de tráfico no es un perímetro. Las cámaras podrían pintarse como puntos.
+> - **Valencia:** su portal publica 5 aparcamientos disuasorios de la ZBE, útiles para la sección de "alternativas".
 
 ### Llamadas a revisión: modelo y campaña
 
