@@ -117,6 +117,11 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - Publicar con `npm run build` (completo, para `robots.txt` y la portada francesa), `publicada: true` en `secciones.json` y `npm run deploy -- --solo /fr/radars` más el Worker principal.
 - Subir el repositorio a GitHub.
 
+### Autobús de Zaragoza (zarabus)
+- Publicar: `publicada: true` en `secciones.json`, `npm run build` (completo, para `robots.txt` y la portada) y `npm run deploy -- --solo /es/zaragoza-bus` más el Worker principal.
+- Subir el repositorio a GitHub (hoy solo local).
+- Vigilar que Avanza no cambie su HTML (si cambia, el Worker cae a DNDzgz y registra el motivo en los logs); revisar si la API municipal de tiempos vuelve a funcionar.
+
 ### Llamadas a revisión
 - Automatizar la descarga del XML de Safety Gate si existe un enlace estable.
 - Bloque de carVertical ("comprueba si tu coche tiene revisiones pendientes").

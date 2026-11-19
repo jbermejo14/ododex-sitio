@@ -62,5 +62,9 @@ Registro de las decisiones importantes, con su motivo y las alternativas descart
 | Radares Francia: exceso **≥ 50 km/h como delito** (AFD 300 €, tribunal hasta 3 750 € y 3 meses) | Es la ley vigente desde el 29/12/2025; elegido por el titular | El baremo antiguo de 1 500 € que pedía el encargo |
 | Radares Francia: **marge technique según la velocidad medida** (< 100 → −5 km/h; ≥ 100 → −5 %) | Es la regla oficial de los cinemómetros | Aplicarla según el límite, como decía el encargo |
 | Radares Francia: **extracto real del CSV oficial** (13 departamentos, 2018) con aviso y `noindex` | Mejor que datos inventados; la estructura queda lista para el fichero completo | Radares inventados |
+| Web nueva **zarabus** en `/es/zaragoza-bus` con **Worker propio** `ododex-zaragoza-bus` con código (19/11/2026) | Necesita un proxy de tiempos reales (los orígenes no envían CORS); mismo patrón que el tranvía | Ir en el Worker `ododex`, que no ejecuta código |
+| Autobús de Zaragoza: **paleta roja propia** | Distingue la web del resto de secciones | La paleta común de Ododex |
+| Autobús de Zaragoza: **sin anuncios** | Decisión del titular | AdSense como en las demás webs |
+| Autobús de Zaragoza: **Avanza como origen y DNDzgz como respaldo** | La API municipal de tiempos estaba caída; Avanza es el operador y DNDzgz responde en JSON sin tildes | DNDzgz como único origen |
 | ZFE: **datos de ejemplo con aviso y `noindex`** hasta cargar la Base Nationale des ZFE | No indexar restricciones inventadas; la estructura queda lista para el fichero oficial | Publicar sin aviso; esperar a tener datos para construir la web |
 | ZFE: calculadora con la **tabla oficial de deux-roues** y la **clase peor en años frontera** | La tabla simplificada pedida no cubre las motos; sin mes de matriculación, la clase segura es la peor | Aplicar a las motos la tabla de turismos |

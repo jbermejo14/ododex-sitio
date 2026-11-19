@@ -14,6 +14,7 @@ Publica `ododex.com` en Cloudflare como un único sitio estático (Worker `odode
 | `/es/gasolineras` | `../gasolineras` (Worker propio) |
 | `/es/llamadas-revision` | `../recalls-web`, carpeta `out-es` (Worker propio) |
 | `/en/recalls` | `../recalls-web`, carpeta `out-en` (Worker propio; no sale en la portada) |
+| `/es/zaragoza-bus` | `../zarabus` (Worker propio con proxy de tiempos; sin publicar) |
 
 Las secciones están en `config/secciones.json`. El diseño completo está en [`ARCHITECTURE.md`](ARCHITECTURE.md).
 

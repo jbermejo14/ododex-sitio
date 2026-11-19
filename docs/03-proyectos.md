@@ -146,6 +146,30 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## zarabus — /es/zaragoza-bus
+
+| | |
+|---|---|
+| URL | https://ododex.com/es/zaragoza-bus (sin publicar) |
+| Repositorio | Solo local (`zarabus`, sin remoto) |
+| Worker | `ododex-zaragoza-bus` (con código: `workers/zaragoza-bus.mjs`) |
+| Ficheros | ~40 |
+| Datos | Instantánea de los postes de Zaragoza del 19/11/2026 (`data/stops-snapshot.json`) y recorridos oficiales de 2013 |
+
+**Qué ofrece:** cuándo llega el próximo autobús urbano de Zaragoza a tu parada, buscando por número de poste o por calle, con mapa. Los favoritos se guardan en `localStorage` del navegador.
+
+**Cómo se construye:**
+- El Worker `ododex-zaragoza-bus` sirve los estáticos y hace de proxy en `GET /es/zaragoza-bus/api/poste/{número}`: consulta primero la web pública de Avanza (HTML en ISO-8859-1) y, si falla, la API de DNDzgz. Responde `{ origen, destinos }` con `cache-control: public, max-age=15`; los errores (400, 404, 405, 502) no se cachean.
+- La API municipal de tiempos estaba caída el 19/11/2026, por eso Avanza es el origen principal.
+- Contrato completo en `zarabus/ARCHITECTURE.md`.
+
+**Particularidades:**
+- Los recorridos de las líneas son los oficiales de 2013 y pueden estar desactualizados.
+- Sin anuncios, por decisión del titular.
+- Marcada `publicada: false` en `secciones.json`: se ensambla, pero no sale en portadas ni en `robots.txt`.
+
+---
+
 ## gasolineras — /es/gasolineras
 
 | | |
