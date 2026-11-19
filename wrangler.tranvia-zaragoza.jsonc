@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio del tranvía de Zaragoza. La route lleva /es/tranvia-zaragoza* a este Worker; se
+  // ejecuta antes que el dominio personalizado del Worker principal (wrangler.jsonc).
+  "name": "ododex-tranvia-zaragoza",
+  // Único Worker con código: proxy de la API de tiempos. Sin empaquetar porque esbuild está bloqueado.
+  "main": "workers/tranvia-zaragoza.mjs",
+  "no_bundle": true,
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/es/tranvia-zaragoza*", "zone_name": "ododex.com" }],
+  // Sin URL *.workers.dev ni URLs de vista previa: llevan el nombre de la cuenta.
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-tranvia-zaragoza",
+    "binding": "ASSETS",
+    // Solo la API ejecuta código; el resto lo sirve Cloudflare como estático.
+    "run_worker_first": ["/es/tranvia-zaragoza/api/*"],
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
