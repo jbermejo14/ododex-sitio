@@ -76,7 +76,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 | URL | https://ododex.com/fr/prix-carburants |
 | Repositorio | https://github.com/jbermejo14/fr-gasolineras (rama `main`) |
 | Worker | `ododex-prix-carburants` |
-| Ficheros | ~17 500 (15 500 páginas + 1 056 particiones de histórico) |
+| Ficheros | ~18 050 (15 650 páginas + 1 056 particiones de histórico + logos) |
 | Datos | Flujo instantáneo de data.economie.gouv.fr (unas 9 800 estaciones) y ficheros anuales de donnees.roulez-eco.fr (histórico desde 2016) |
 
 **Qué ofrece (en francés):** lo mismo que gasolineras para Francia: buscador con mapa, páginas por departamento y municipio, ficha por estación (precios con fecha, horario, servicios, histórico) y páginas de histórico por Francia, región y departamento.
@@ -90,7 +90,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 **Actualización diaria:** incluida al final de `npm run actualizar:gasolineras` (`historique:fr`, compilación y despliegue de `/fr/prix-carburants`).
 
-**Marcas (2026-11-19):** nombre y red de cada estación desde el referencial de Chiffrex/OpenStreetMap en data.gouv.fr (ODbL, atribución obligatoria), con 19 redes, logos de 16, filtro en el buscador, páginas `/marque/*` e histórico por marca.
+**Marcas (publicadas el 2026-11-19):** nombre y red de cada estación desde el referencial de Chiffrex/OpenStreetMap en data.gouv.fr (ODbL, atribución obligatoria), con 19 redes, logos de 16, filtro en el buscador, páginas `/marque/*` e histórico por marca.
 
 **Particularidades:**
 - El histórico por marca usa la marca actual de cada estación para todo el periodo.

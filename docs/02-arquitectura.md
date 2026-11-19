@@ -43,7 +43,7 @@ Recuento aproximado de ficheros por Worker:
 | `ododex-puntos-recarga` | /es/puntos-recarga | ~15 643 |
 | `ododex-llamadas-revision` | /es/llamadas-revision | ~14 733 |
 | `ododex-recalls` | /en/recalls | ~14 733 |
-| `ododex-prix-carburants` | /fr/prix-carburants | ~17 500 |
+| `ododex-prix-carburants` | /fr/prix-carburants | ~18 050 |
 | `ododex-zbe` | /es/zbe | ~6 621 |
 | `ododex-electrico-vs-gasolina` | /es/electrico-vs-gasolina | ~334 (Worker propio para actualizarlo cada día sin redesplegar el principal) |
 | `ododex-itv` | /es/itv | ~3 000 |
