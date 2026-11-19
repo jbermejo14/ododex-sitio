@@ -44,6 +44,13 @@
     "worker": "ododex-zbe"
   },
   {
+    "ruta": "/es/tranvia-zaragoza",
+    "proyecto": "../zaratram-live",
+    "nombre": "Tranvía de Zaragoza",
+    "descripcion": "Próximos tranvías de la Línea 1 en cada parada, en tiempo real, con mapa y semáforo de salida.",
+    "worker": "ododex-tranvia-zaragoza"
+  },
+  {
     "ruta": "/es/puntos-recarga",
     "proyecto": "../charger-map",
     "nombre": "Puntos de recarga",
