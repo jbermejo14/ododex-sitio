@@ -96,6 +96,30 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 ---
 
+## zfe-fr — /fr/zfe
+
+| | |
+|---|---|
+| URL | https://ododex.com/fr/zfe (sin publicar) |
+| Repositorio | Local (rama `main`), sin remoto en GitHub todavía |
+| Worker | `ododex-zfe` |
+| Ficheros | ~132 |
+| Datos | `public/datos/aires.geojson` con el esquema de la Base Nationale des ZFE (transport.data.gouv.fr). **Ahora mismo, datos de ejemplo** |
+
+**Qué ofrece (en francés):** calculadora de la vignette Crit'Air (voiture, utilitaire, deux-roues; año o norma Euro), acceso a las 10 ZFE principales, mapa Leaflet con los perímetros y una página por ciudad (`/fr/zfe/<ville>`) con tabla de vignettes, horarios, próximas etapas y FAQ.
+
+**Cómo se construye:**
+- Equivalente francés de `zbe-map`; contrato en `zfe-fr/ARCHITECTURE.md`.
+- Sin descarga en la compilación: el GeoJSON está en el repositorio.
+- `npm test` usa `node --test` con un cargador propio (`tests/support/ts-loader.mjs`): esbuild, y por tanto tsx, está bloqueado en este equipo.
+- `enPortada: false`: la portada de ododex.com está en español.
+
+**Particularidades:**
+- Mientras `AIRES_DATA_IS_SAMPLE` sea `true` (`lib/zfe-source.ts`), todas las páginas muestran « Données d'exemple » y llevan `noindex, follow`. Para pasar a datos oficiales, ver "Sustituir los datos de ejemplo" en `zfe-fr/README.md`.
+- Mismo `config/titular.json` que el resto de webs (copiado a mano, fuera de git).
+
+---
+
 ## gasolineras — /es/gasolineras
 
 | | |

@@ -57,3 +57,6 @@ Registro de las decisiones importantes, con su motivo y las alternativas descart
 | Ranking de tarifas **sin Madrid, Murcia ni Baleares** | Madrid solo tiene el precio de un operador; Murcia y Baleares no tienen total verificable | Incluirlas con su cifra |
 | Calculadora: el tramo nuevo empieza **el día del aniversario**, dicho en la web como criterio propio | La norma no precisa el día exacto | La lectura inclusiva ("hasta 10 años" incluye ese día) |
 | Fichas de centro **indexables** aunque falten datos de OSM | Dan distancias, cercanos y tarifa; si Search Console no las indexa, se valorará `noindex` | `noindex` desde el principio |
+| Web nueva **zfe-fr** en `/fr/zfe` con **Worker propio** `ododex-zfe` (19/11/2026) | Mismo patrón que la otra sección francesa; se publica y actualiza sus datos sin tocar el Worker principal | Ir en el Worker `ododex` (solo ~132 ficheros) |
+| ZFE: **datos de ejemplo con aviso y `noindex`** hasta cargar la Base Nationale des ZFE | No indexar restricciones inventadas; la estructura queda lista para el fichero oficial | Publicar sin aviso; esperar a tener datos para construir la web |
+| ZFE: calculadora con la **tabla oficial de deux-roues** y la **clase peor en años frontera** | La tabla simplificada pedida no cubre las motos; sin mes de matriculación, la clase segura es la peor | Aplicar a las motos la tabla de turismos |

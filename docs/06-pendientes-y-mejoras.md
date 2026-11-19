@@ -108,6 +108,11 @@ Si el disco falla, se pierde casi todo el trabajo publicado. **Acción:**
 - Vigilar en Search Console las fichas de centro y las páginas de año; plan B: `noindex` en las que no se indexen.
 - Subir el repositorio `es-itv` a GitHub.
 
+### ZFE Francia (zfe-fr)
+- Sustituir `public/datos/aires.geojson` por el fichero oficial de la Base Nationale des ZFE, verificar los SIREN, `perimeterLabel` e `infoUrl` de `data/zfe-cities.json` y poner `AIRES_DATA_IS_SAMPLE = false`. Hasta entonces no publicar.
+- Publicar con `npm run build` (completo, para que `robots.txt` incluya `/fr/zfe/sitemap.xml`) y `npm run deploy -- --solo /fr/zfe` más el Worker principal.
+- Subir el repositorio `zfe-fr` a GitHub.
+
 ### Llamadas a revisión
 - Automatizar la descarga del XML de Safety Gate si existe un enlace estable.
 - Bloque de carVertical ("comprueba si tu coche tiene revisiones pendientes").
