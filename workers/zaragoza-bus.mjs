@@ -14,10 +14,20 @@ const METODO_ORIGEN_GPS = "POST";
 // Clave GET sintética de la Cache API: los POST no se cachean, así que se guarda por poste.
 const URL_CLAVE_CACHE_GPS = "https://ododex.com/es/zaragoza-bus/cache/gps/";
 const PATRON_POSTE = /^\d{1,5}$/;
+const PATRON_LINEA = /^[A-Za-z0-9]{1,4}$/;
+const PARAMETRO_POSTES = "postes";
+const SEPARADOR_POSTES = ",";
+const MAXIMO_POSTES_LINEA = 10;
+const PREFIJO_RUTA_GPS_LINEA = `${PREFIJO_API}gps-linea/`;
 const TIEMPO_MAXIMO_MS = 5000;
 // El sistema GPS de Avanza tarda de 3 a 6 s en responder (medido el 2026-11-20); debe quedar por
 // debajo de los 8 s que espera el cliente.
 const TIEMPO_MAXIMO_GPS_MS = 7000;
+// En gps-linea se consultan hasta 10 postes: con 8 POST a la vez muchos superaban los 7 s (medido el
+// 2026-11-20: 3 consultados y 5 fallidos, con 3-11 s por poste), así que se limita la concurrencia y
+// se admite más espera por poste.
+const TIEMPO_MAXIMO_GPS_LINEA_MS = 12000;
+const MAXIMO_CONSULTAS_SIMULTANEAS_GPS_LINEA = 4;
 const TTL_CACHE_ORIGEN_S = 20;
 const OPCIONES_ORIGEN_TIEMPOS = { cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true } };
 const MAX_AGE_RESPUESTA_S = 15;
@@ -47,6 +57,8 @@ const ESTADO_METODO_NO_PERMITIDO = 405;
 const ESTADO_ORIGEN_FALLIDO = 502;
 
 const MENSAJE_POSTE_INVALIDO = "El poste debe ser un número de uno a cinco dígitos.";
+const MENSAJE_LINEA_INVALIDA = "La línea debe tener de uno a cuatro caracteres alfanuméricos.";
+const MENSAJE_POSTES_INVALIDOS = `Indica de 1 a ${MAXIMO_POSTES_LINEA} postes distintos en «postes», separados por comas y con uno a cinco dígitos cada uno.`;
 const MENSAJE_NO_ENCONTRADO = "Ruta de la API no encontrada.";
 const MENSAJE_METODO = "Método no permitido: usa GET.";
 const MENSAJE_ORIGEN = "No se pudo obtener los tiempos del autobús. Inténtalo de nuevo en unos segundos.";
@@ -304,12 +316,12 @@ function mapearGps(datos) {
   return { poste, autobuses };
 }
 
-async function consultarGps(poste) {
+async function consultarGps(poste, tiempoMaximoMs) {
   const datos = await pedirOrigen(URL_GPS_AVANZA, (respuesta) => respuesta.json(), {
     method: METODO_ORIGEN_GPS,
     headers: { "content-type": TIPO_FORMULARIO, "user-agent": USER_AGENT_GPS },
     body: `poste=${poste}&coche=0`,
-  }, TIEMPO_MAXIMO_GPS_MS);
+  }, tiempoMaximoMs);
   return mapearGps(datos);
 }
 
@@ -333,7 +345,36 @@ async function leerDeCacheGps(clave) {
   }
 }
 
-async function responderGps(posteCrudo) {
+/** Ejecuta la tarea sin esperas: es el comportamiento de /api/gps/. */
+const ejecutarSinLimite = (tarea) => tarea();
+
+/** Crea una cola que ejecuta como mucho `maximo` tareas a la vez, en orden de llegada. */
+function crearLimitadorConcurrencia(maximo) {
+  let activas = 0;
+  const esperando = [];
+  const lanzarSiguiente = () => {
+    if (activas >= maximo || esperando.length === 0) return;
+    activas += 1;
+    const { tarea, resolver, rechazar } = esperando.shift();
+    tarea()
+      .then(resolver, rechazar)
+      .finally(() => {
+        activas -= 1;
+        lanzarSiguiente();
+      });
+  };
+  return (tarea) =>
+    new Promise((resolver, rechazar) => {
+      esperando.push({ tarea, resolver, rechazar });
+      lanzarSiguiente();
+    });
+}
+
+/**
+ * Responde con el GPS de un poste, usando la caché si hay entrada. `ejecutarConsulta` envuelve solo
+ * la consulta al origen (las respuestas en caché no pasan por él).
+ */
+async function responderGps(posteCrudo, { tiempoMaximoMs = TIEMPO_MAXIMO_GPS_MS, ejecutarConsulta = ejecutarSinLimite } = {}) {
   // Sin ceros a la izquierda: 1, 01 y 00001 comparten clave de caché y petición al origen.
   const poste = String(Number(posteCrudo));
   const hayCache = typeof caches !== "undefined";
@@ -344,7 +385,7 @@ async function responderGps(posteCrudo) {
   }
   let respuesta;
   try {
-    respuesta = new Response(JSON.stringify(await consultarGps(poste)), { status: ESTADO_OK, headers: CABECERAS_OK });
+    respuesta = new Response(JSON.stringify(await ejecutarConsulta(() => consultarGps(poste, tiempoMaximoMs))), { status: ESTADO_OK, headers: CABECERAS_OK });
   } catch (error) {
     console.warn(`GPS de Avanza no disponible (poste ${poste}): ${error.message}`);
     return respuestaError(ESTADO_ORIGEN_FALLIDO, MENSAJE_ORIGEN_GPS);
@@ -353,13 +394,68 @@ async function responderGps(posteCrudo) {
   return respuesta;
 }
 
+/** Postes de la consulta `postes=N1,N2,…`; null si faltan, sobran, no son numéricos o se repiten. */
+function leerPostesLinea(parametros) {
+  const lista = (parametros.get(PARAMETRO_POSTES) ?? "").split(SEPARADOR_POSTES);
+  const validos = lista.length <= MAXIMO_POSTES_LINEA && lista.every((poste) => PATRON_POSTE.test(poste));
+  // Se compara normalizado: 7 y 007 son el mismo poste y compartirían petición y caché.
+  const distintos = new Set(lista.map((poste) => String(Number(poste))));
+  return validos && distintos.size === lista.length ? lista : null;
+}
+
+/** Datos GPS de un poste (reutiliza caché y consulta de /api/gps/); null si falla. */
+async function leerGpsDePoste(poste, ejecutarConsulta) {
+  const respuesta = await responderGps(poste, { tiempoMaximoMs: TIEMPO_MAXIMO_GPS_LINEA_MS, ejecutarConsulta });
+  return respuesta.status === ESTADO_OK ? respuesta.json() : null;
+}
+
+/** Une por coche los autobuses de la línea pedida; el primer poste que lo ve fija sus coordenadas. */
+function unirAutobusesDeLinea(lineaNormalizada, resultados) {
+  const porCoche = new Map();
+  for (const datos of resultados.filter((resultado) => resultado !== null)) {
+    for (const { coche, linea, destino, latitud, longitud } of datos.autobuses) {
+      if (linea === lineaNormalizada && !porCoche.has(coche)) {
+        porCoche.set(coche, { coche, linea, destino, latitud, longitud });
+      }
+    }
+  }
+  return [...porCoche.values()];
+}
+
+async function responderGpsLinea(linea, parametros) {
+  if (!PATRON_LINEA.test(linea)) {
+    return respuestaError(ESTADO_PETICION_INVALIDA, MENSAJE_LINEA_INVALIDA);
+  }
+  const postes = leerPostesLinea(parametros);
+  if (postes === null) {
+    return respuestaError(ESTADO_PETICION_INVALIDA, MENSAJE_POSTES_INVALIDOS);
+  }
+  const ejecutarConsulta = crearLimitadorConcurrencia(MAXIMO_CONSULTAS_SIMULTANEAS_GPS_LINEA);
+  const resultados = await Promise.all(postes.map((poste) => leerGpsDePoste(poste, ejecutarConsulta)));
+  const postesFallidos = resultados.filter((resultado) => resultado === null).length;
+  if (postesFallidos === postes.length) {
+    return respuestaError(ESTADO_ORIGEN_FALLIDO, MENSAJE_ORIGEN_GPS);
+  }
+  const lineaNormalizada = normalizarLineaGps(linea);
+  const cuerpo = {
+    linea: lineaNormalizada,
+    autobuses: unirAutobusesDeLinea(lineaNormalizada, resultados),
+    postesConsultados: postes.length - postesFallidos,
+    postesFallidos,
+  };
+  return new Response(JSON.stringify(cuerpo), { status: ESTADO_OK, headers: CABECERAS_OK });
+}
+
 const RUTAS_API = [
   { prefijo: PREFIJO_RUTA_POSTE, responder: responderPoste },
-  { prefijo: PREFIJO_RUTA_GPS, responder: responderGps },
+  { prefijo: PREFIJO_RUTA_GPS, responder: (poste) => responderGps(poste) },
 ];
 
 /** Resuelve una petición bajo /api/ (el método ya se ha validado). */
-function responderApi(ruta) {
+function responderApi({ pathname: ruta, searchParams }) {
+  if (ruta.startsWith(PREFIJO_RUTA_GPS_LINEA)) {
+    return responderGpsLinea(ruta.slice(PREFIJO_RUTA_GPS_LINEA.length), searchParams);
+  }
   const destino = RUTAS_API.find(({ prefijo }) => ruta.startsWith(prefijo));
   if (destino === undefined) {
     return respuestaError(ESTADO_NO_ENCONTRADO, MENSAJE_NO_ENCONTRADO);
@@ -374,13 +470,14 @@ function responderApi(ruta) {
 export default {
   /** Atiende /es/zaragoza-bus/api/*; el resto lo delega en los estáticos (env.ASSETS). */
   async fetch(request, env) {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const { pathname } = url;
     if (!pathname.startsWith(PREFIJO_API)) {
       return env.ASSETS.fetch(request);
     }
     if (request.method !== METODO_PERMITIDO) {
       return respuestaError(ESTADO_METODO_NO_PERMITIDO, MENSAJE_METODO, { allow: METODO_PERMITIDO });
     }
-    return responderApi(pathname);
+    return responderApi(url);
   },
 };

@@ -160,6 +160,7 @@ Ver [02-arquitectura.md](02-arquitectura.md).
 
 **Cómo se construye:**
 - El Worker `ododex-zaragoza-bus` sirve los estáticos y hace de proxy en `GET /es/zaragoza-bus/api/poste/{número}`: consulta primero la web pública de Avanza (HTML en ISO-8859-1) y, si falla, la API de DNDzgz. Responde `{ origen, destinos }` con `cache-control: public, max-age=15`; los errores (400, 404, 405, 502) no se cachean.
+- Ruta `GET /es/zaragoza-bus/api/gps-linea/{línea}?postes=N1,N2,…` (1–10 postes): consulta en paralelo el GPS de Avanza por poste (caché de 15 s compartida con `/api/gps/`) y devuelve los autobuses de esa línea unidos por coche, con `postesConsultados` y `postesFallidos`; 502 si fallan todos.
 - La API municipal de tiempos estaba caída el 19/11/2026, por eso Avanza es el origen principal.
 - Contrato completo en `zarabus/ARCHITECTURE.md`.
 
