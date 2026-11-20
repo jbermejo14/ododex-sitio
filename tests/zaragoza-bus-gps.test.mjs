@@ -186,6 +186,20 @@ describe("GET /api/gps/{poste}", () => {
     assert.deepEqual(opciones.headers, { "content-type": "application/x-www-form-urlencoded", "user-agent": USER_AGENT_ESPERADO });
   });
 
+  it("no reenvía la query de la petición al origen", async () => {
+    await worker.fetch(new Request(`${BASE}/api/gps/744?x=1`), entorno);
+    await worker.fetch(peticion("744"), entorno);
+    const [primera, segunda] = simulado.mock.calls.map((llamada) => llamada.arguments);
+    assert.equal(primera[0], segunda[0]);
+    assert.equal(primera[1].body, segunda[1].body);
+  });
+
+  it("acepta &nbsp; con punto y coma en la celda del coche", async () => {
+    responderOrigen({ maquinas: { 1: maquinaConFilas([["&nbsp;4709", "58->FUENTE", "2 min.", "1 kms."]]) } });
+    const { cuerpo } = await pedirJson();
+    assert.equal(cuerpo.autobuses[0].coche, "4709");
+  });
+
   it("envía las cabeceras de una respuesta correcta y de un error", async () => {
     const ok = await worker.fetch(peticion("688"), entorno);
     assert.equal(ok.headers.get("cache-control"), MAX_AGE_ESPERADO);
@@ -231,6 +245,23 @@ describe("GET /api/gps/{poste}", () => {
       responderOrigen([]);
       await worker.fetch(peticion("688"), entorno);
       assert.equal(almacen.size, 0);
+    });
+
+    it("responde con datos del origen si la caché falla al leer", async () => {
+      globalThis.caches = { default: { match: async () => { throw new Error("caché caída"); }, put: async () => {} } };
+      const { respuesta, cuerpo } = await pedirJson("688");
+      assert.equal(respuesta.status, 200);
+      assert.equal(cuerpo.autobuses.length, 1);
+      assert.equal(simulado.mock.callCount(), 1);
+    });
+
+    it("normaliza los ceros a la izquierda: una sola clave y una sola petición al origen", async () => {
+      const almacen = instalarCache();
+      await worker.fetch(peticion("01"), entorno);
+      await worker.fetch(peticion("1"), entorno);
+      assert.equal(simulado.mock.callCount(), 1);
+      assert.equal(almacen.size, 1);
+      assert.equal(simulado.mock.calls[0].arguments[1].body, "poste=1&coche=0");
     });
 
     it("responde igualmente si la caché falla al guardar", async () => {

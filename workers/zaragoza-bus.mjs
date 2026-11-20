@@ -16,6 +16,7 @@ const URL_CLAVE_CACHE_GPS = "https://ododex.com/es/zaragoza-bus/cache/gps/";
 const PATRON_POSTE = /^\d{1,5}$/;
 const TIEMPO_MAXIMO_MS = 5000;
 const TTL_CACHE_ORIGEN_S = 20;
+const OPCIONES_ORIGEN_TIEMPOS = { cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true } };
 const MAX_AGE_RESPUESTA_S = 15;
 const METODO_PERMITIDO = "GET";
 const ORIGEN_AVANZA = "avanza";
@@ -58,7 +59,6 @@ const PATRON_NUMERICO = /^\d+$/;
 const SEPARADOR_LINEA_DESTINO = "->";
 const MARCA_ICONO_POSTE = "bus_rojo";
 const CELDAS_POR_FILA_GPS = 4;
-const OPCIONES_ORIGEN_TIEMPOS = { cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true } };
 
 /** Respuesta JSON de error con el mensaje en español. */
 function respuestaError(estado, mensaje, cabecerasExtra = {}) {
@@ -313,17 +313,30 @@ async function consultarGps(poste) {
 /** Guarda la respuesta en la Cache API; un fallo de la caché no debe romper la respuesta. */
 async function guardarEnCacheGps(clave, respuesta) {
   try {
+    // Se espera al guardado para que termine antes de responder: el handler no recibe `ctx` (waitUntil).
     await caches.default.put(clave, respuesta.clone());
   } catch (error) {
     console.warn(`No se pudo guardar el GPS en caché: ${error.message}`);
   }
 }
 
-async function responderGps(poste) {
+/** Lee la respuesta guardada; si la caché falla devuelve undefined y se consulta el origen. */
+async function leerDeCacheGps(clave) {
+  try {
+    return await caches.default.match(clave);
+  } catch (error) {
+    console.warn(`No se pudo leer el GPS de la caché: ${error.message}`);
+    return undefined;
+  }
+}
+
+async function responderGps(posteCrudo) {
+  // Sin ceros a la izquierda: 1, 01 y 00001 comparten clave de caché y petición al origen.
+  const poste = String(Number(posteCrudo));
   const hayCache = typeof caches !== "undefined";
   const clave = new Request(`${URL_CLAVE_CACHE_GPS}${poste}`);
   if (hayCache) {
-    const guardada = await caches.default.match(clave);
+    const guardada = await leerDeCacheGps(clave);
     if (guardada) return guardada;
   }
   let respuesta;
