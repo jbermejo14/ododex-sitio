@@ -15,6 +15,9 @@ const METODO_ORIGEN_GPS = "POST";
 const URL_CLAVE_CACHE_GPS = "https://ododex.com/es/zaragoza-bus/cache/gps/";
 const PATRON_POSTE = /^\d{1,5}$/;
 const TIEMPO_MAXIMO_MS = 5000;
+// El sistema GPS de Avanza tarda de 3 a 6 s en responder (medido el 2026-11-20); debe quedar por
+// debajo de los 8 s que espera el cliente.
+const TIEMPO_MAXIMO_GPS_MS = 7000;
 const TTL_CACHE_ORIGEN_S = 20;
 const OPCIONES_ORIGEN_TIEMPOS = { cf: { cacheTtl: TTL_CACHE_ORIGEN_S, cacheEverything: true } };
 const MAX_AGE_RESPUESTA_S = 15;
@@ -119,9 +122,9 @@ export function mapearDndzgz(datos) {
  * Pide una URL con tiempo máximo y sin cabeceras del usuario; lanza si falla, expira o no responde 2xx.
  * `opciones` añade método, cuerpo o cabeceras propias; por defecto es un GET con caché de borde.
  */
-async function pedirOrigen(url, leerCuerpo, opciones = OPCIONES_ORIGEN_TIEMPOS) {
+async function pedirOrigen(url, leerCuerpo, opciones = OPCIONES_ORIGEN_TIEMPOS, tiempoMaximoMs = TIEMPO_MAXIMO_MS) {
   const controlador = new AbortController();
-  const temporizador = setTimeout(() => controlador.abort(), TIEMPO_MAXIMO_MS);
+  const temporizador = setTimeout(() => controlador.abort(), tiempoMaximoMs);
   try {
     const respuesta = await fetch(url, {
       ...opciones,
@@ -306,7 +309,7 @@ async function consultarGps(poste) {
     method: METODO_ORIGEN_GPS,
     headers: { "content-type": TIPO_FORMULARIO, "user-agent": USER_AGENT_GPS },
     body: `poste=${poste}&coche=0`,
-  });
+  }, TIEMPO_MAXIMO_GPS_MS);
   return mapearGps(datos);
 }
 

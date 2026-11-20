@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, it, mock } from "node:test";
 import worker from "../workers/zaragoza-bus.mjs";
 
-const TIEMPO_MAXIMO_MS = 5000;
+const TIEMPO_MAXIMO_MS = 7000;
 const MAX_AGE_ESPERADO = "public, max-age=15";
 const MENSAJE_POSTE_INVALIDO = "El poste debe ser un número de uno a cinco dígitos.";
 const MENSAJE_ORIGEN_GPS = "No se pudo obtener la posición de los autobuses. Inténtalo de nuevo en unos segundos.";
@@ -166,11 +166,16 @@ describe("GET /api/gps/{poste}", () => {
 
   it("responde 502 al agotar el tiempo máximo", async () => {
     mock.timers.enable({ apis: ["setTimeout"] });
+    let senal;
     simulado.mock.mockImplementation((_url, { signal }) => new Promise((_resolver, rechazar) => {
+      senal = signal;
       signal.addEventListener("abort", () => rechazar(new DOMException("abortado", "AbortError")));
     }));
     const pendiente = worker.fetch(peticion("688"), entorno);
-    mock.timers.tick(TIEMPO_MAXIMO_MS);
+    await Promise.resolve();
+    mock.timers.tick(TIEMPO_MAXIMO_MS - 1);
+    assert.equal(senal.aborted, false, "el GPS de Avanza tarda hasta 6 s: no se corta antes del máximo");
+    mock.timers.tick(1);
     assert.equal((await pendiente).status, ESTADO_ORIGEN_FALLIDO);
   });
 
