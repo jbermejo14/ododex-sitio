@@ -51,6 +51,13 @@
     "worker": "ododex-tranvia-zaragoza"
   },
   {
+    "ruta": "/es/zaragoza-bus",
+    "proyecto": "../zarabus",
+    "nombre": "Autobús de Zaragoza",
+    "descripcion": "Cuándo llega el próximo autobús urbano de Zaragoza a tu parada: busca por número de poste o por calle, con mapa.",
+    "worker": "ododex-zaragoza-bus"
+  },
+  {
     "ruta": "/es/puntos-recarga",
     "proyecto": "../charger-map",
     "nombre": "Puntos de recarga",
