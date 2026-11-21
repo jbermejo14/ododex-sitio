@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contacto y soporte | Ododex</title>
+  <meta name="description" content="Ponte en contacto con el equipo de Ododex para sugerencias, incidencias técnicas, rectificación de datos o consultas comerciales.">
+  <link rel="canonical" href="<!-- ORIGEN -->/contacto">
+  <meta property="og:url" content="<!-- ORIGEN -->/contacto">
+  <meta property="og:site_name" content="Ododex">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Contacto y soporte | Ododex">
+  <meta property="og:description" content="Ponte en contacto con el equipo de Ododex para sugerencias, incidencias técnicas, rectificación de datos o consultas comerciales.">
+  <meta property="og:image" content="<!-- ORIGEN -->/brand/ododex-og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/ododex-favicon.svg">
+  <link rel="stylesheet" href="/estilos.css">
+  <script>
+    (function () {
+      var theme = null;
+      try {
+        var saved = localStorage.getItem('ododex-theme');
+        if (saved === 'light' || saved === 'dark') theme = saved;
+        if (!theme) {
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = prefersDark ? 'dark' : 'light';
+        }
+      } catch (e) {
+        theme = 'light';
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-container">
+      <a class="brand" href="/" aria-label="Ododex, inicio">
+        <img class="brand-logo brand-logo-light" src="/brand/ododex-logo-light.svg" alt="Ododex" width="116" height="28">
+        <img class="brand-logo brand-logo-dark" src="/brand/ododex-logo-dark.svg" alt="Ododex" width="116" height="28">
+      </a>
+      <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Cambiar entre tema claro y oscuro">
+        <span class="theme-when-light" aria-hidden="true">☾</span>
+        <span class="theme-when-dark" aria-hidden="true">☀</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <h1 class="page-title">Contacto</h1>
+    <p class="page-intro">Estamos a tu disposición para cualquier consulta, corrección de datos o propuesta.</p>
+
+    <div class="prose">
+      <h2>¿Cómo contactar con nosotros?</h2>
+      <p>Puedes escribirnos directamente a nuestro correo electrónico de atención y soporte:</p>
+      <p><strong>contacto@ododex.com</strong></p>
+
+      <h2>Motivos de contacto frecuentes</h2>
+      <ul>
+        <li><strong>Corrección de datos:</strong> Si una ordenanza municipal de ZBE ha cambiado, una tarifa de ITV se ha modificado recientemente o una gasolinera ha cerrado, indícanos la fuente oficial o el boletín y actualizaremos el registro a la mayor brevedad.</li>
+        <li><strong>Incidencias técnicas:</strong> Si encuentras un fallo de visualización o error en alguna calculadora, facilítanos el navegador y el dispositivo para poder reproducirlo y solucionarlo.</li>
+        <li><strong>Publicidad y colaboraciones:</strong> Si representas a una entidad del sector de la automoción, seguros, recarga eléctrica o movilidad y deseas explorar colaboraciones de patrocinio o afiliación.</li>
+      </ul>
+
+      <h2>Aviso importante</h2>
+      <p>Ododex no gestiona recursos de multas, no tramita citas de ITV ni liquida impuestos ante la Agencia Tributaria o las haciendas autonómicas. Para gestiones administrativas oficiales, debes acudir directamente a la sede electrónica del organismo correspondiente.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-text">Ododex</p>
+    <div class="footer-legal">
+      <a href="/sobre-nosotros">Sobre Ododex</a>
+      <a href="/contacto">Contacto</a>
+      <a href="/es/multas/aviso-legal">Aviso legal</a>
+      <a href="/es/multas/privacidad">Privacidad</a>
+      <a href="/es/multas/cookies">Cookies</a>
+      <a href="/fr/" hreflang="fr" lang="fr">Version française</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('ododex-theme', next); } catch (e) {}
+    });
+  </script>
+</body>
+</html>

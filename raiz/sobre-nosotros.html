@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sobre Ododex: qué es y fuentes de datos | Ododex</title>
+  <meta name="description" content="Conoce qué es Ododex, nuestra misión de transparencia para automovilistas y las fuentes oficiales de datos que utilizamos (BOE, DGT, MITECO, Safety Gate).">
+  <link rel="canonical" href="<!-- ORIGEN -->/sobre-nosotros">
+  <meta property="og:url" content="<!-- ORIGEN -->/sobre-nosotros">
+  <meta property="og:site_name" content="Ododex">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Sobre Ododex: qué es y fuentes de datos | Ododex">
+  <meta property="og:description" content="Conoce qué es Ododex, nuestra misión de transparencia para automovilistas y las fuentes oficiales de datos que utilizamos (BOE, DGT, MITECO, Safety Gate).">
+  <meta property="og:image" content="<!-- ORIGEN -->/brand/ododex-og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="/ododex-favicon.svg">
+  <link rel="stylesheet" href="/estilos.css">
+  <script>
+    (function () {
+      var theme = null;
+      try {
+        var saved = localStorage.getItem('ododex-theme');
+        if (saved === 'light' || saved === 'dark') theme = saved;
+        if (!theme) {
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          theme = prefersDark ? 'dark' : 'light';
+        }
+      } catch (e) {
+        theme = 'light';
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-container">
+      <a class="brand" href="/" aria-label="Ododex, inicio">
+        <img class="brand-logo brand-logo-light" src="/brand/ododex-logo-light.svg" alt="Ododex" width="116" height="28">
+        <img class="brand-logo brand-logo-dark" src="/brand/ododex-logo-dark.svg" alt="Ododex" width="116" height="28">
+      </a>
+      <button class="theme-toggle-btn" id="theme-toggle" type="button" aria-label="Cambiar entre tema claro y oscuro">
+        <span class="theme-when-light" aria-hidden="true">☾</span>
+        <span class="theme-when-dark" aria-hidden="true">☀</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <h1 class="page-title">Sobre Ododex</h1>
+    <p class="page-intro">Los datos de tu coche, claros y accesibles sin rodeos ni muros de pago.</p>
+
+    <div class="prose">
+      <h2>Nuestra misión</h2>
+      <p>Ododex nació con un objetivo simple: transformar los datos públicos dispersos del automóvil en herramientas directas, rápidas y comprensibles para cualquier conductor en España y Europa.</p>
+      <p>Creemos que conocer el coste real de transferir un vehículo, el margen legal de un radar o las restricciones ambientales de una ciudad no debería requerir descifrar boletines oficiales ni navegar por sedes electrónicas confusas.</p>
+
+      <h2>Sitio independiente</h2>
+      <p>Ododex es un proyecto técnico <strong>completamente independiente</strong>. No forma parte de la Dirección General de Tráfico (DGT), de la Agencia Tributaria ni de ningún organismo ministerial. Tampoco pertenecemos a ninguna petrolera ni grupo automovilístico.</p>
+      <p>Financiamos la infraestructura y actualización de datos mediante publicidad no invasiva (Google AdSense) y, en el futuro, mediante programas de afiliación claramente señalizados.</p>
+
+      <h2>Fuentes oficiales y metodología</h2>
+      <p>Todos nuestros simuladores y mapas se nutren de fuentes primarias del sector público:</p>
+      <ul>
+        <li><strong>Precios de carburantes:</strong> Registro diario del Geoportal del Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO).</li>
+        <li><strong>Multas y baremo de velocidad:</strong> Ley sobre Tráfico, Circulación de Vehículos a Motor y Seguridad Vial (BOE) y márgenes metrológicos de la Orden ICT/155/2020.</li>
+        <li><strong>Impuestos y depreciación:</strong> Tablas anuales de precios medios de Hacienda (Órdenes Ministeriales de coeficientes fiscales) y tipos autonómicos del Impuesto de Transmisiones Patrimoniales (ITP) de cada comunidad autónoma.</li>
+        <li><strong>Zonas de Bajas Emisiones (ZBE):</strong> Ordenanzas municipales publicadas en boletines provinciales y datos de Atlas ZBE (licencia ODbL).</li>
+        <li><strong>Puntos de recarga:</strong> Censo nacional RIPREE del MITECO.</li>
+        <li><strong>Llamadas a revisión:</strong> Sistema europeo de alertas de seguridad Safety Gate (Comisión Europea).</li>
+      </ul>
+
+      <h2>Contacto</h2>
+      <p>Si detectas algún dato desactualizado o quieres sugerir una mejora, visita nuestra <a href="/contacto">página de contacto</a>.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-text">Ododex</p>
+    <div class="footer-legal">
+      <a href="/sobre-nosotros">Sobre Ododex</a>
+      <a href="/contacto">Contacto</a>
+      <a href="/es/multas/aviso-legal">Aviso legal</a>
+      <a href="/es/multas/privacidad">Privacidad</a>
+      <a href="/es/multas/cookies">Cookies</a>
+      <a href="/fr/" hreflang="fr" lang="fr">Version française</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('theme-toggle').addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('ododex-theme', next); } catch (e) {}
+    });
+  </script>
+</body>
+</html>
