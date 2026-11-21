@@ -17,6 +17,7 @@ Estado a **18 de noviembre de 2026**.
 | [07-hoja-de-ruta.md](07-hoja-de-ruta.md) | Webs y funciones futuras, en orden de prioridad recomendado. |
 | [08-historial-de-decisiones.md](08-historial-de-decisiones.md) | Qué se decidió, cuándo y por qué, incluidas las opciones descartadas. |
 | [09-auditoria-seo-2026-11.md](09-auditoria-seo-2026-11.md) | Auditoría SEO por muestreo de producción (18/11/2026): fallos, páginas flojas y mejoras priorizadas. |
+| [10-auditoria-seo-red-completa-2026-11.md](10-auditoria-seo-red-completa-2026-11.md) | Auditoría SEO completa de toda la red (21/11/2026): diagnóstico web a web, fallos P0 y plan de acción. |
 
 Si tienes prisa, lee primero la sección **"Riesgos abiertos"** de [06-pendientes-y-mejoras.md](06-pendientes-y-mejoras.md) y después [04-operaciones.md](04-operaciones.md).
 
