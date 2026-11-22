@@ -271,3 +271,27 @@ a {
 .prose strong {
   color: var(--text-primary);
 }
+
+/* Bloques de publicidad con altura mínima para prevenir CLS */
+.ad-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-height: 250px;
+  overflow: hidden;
+  margin: 2rem 0;
+  padding: 0.5rem 1rem 1rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.ad-slot-label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
