@@ -143,5 +143,13 @@
     "descripcion": "Calculez votre date d'échéance et comparez les tarifs officiels de plus de 6 100 centres agréés en France.",
     "worker": "ododex-controle-technique",
     "publicada": true
+  },
+  {
+    "ruta": "/fr/peages",
+    "proyecto": "../peages-fr",
+    "nombre": "Péages & autoroutes",
+    "descripcion": "Calculez le coût officiel des péages d'autoroutes en France et découvrez les astuces pour payer moins cher.",
+    "worker": "ododex-peages",
+    "publicada": true
   }
 ]

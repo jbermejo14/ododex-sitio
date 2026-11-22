@@ -64,4 +64,8 @@
     <loc>https://ododex.com/fr/controle-technique/sitemap.xml</loc>
     <lastmod>2026-11-22</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://ododex.com/fr/peages/sitemap.xml</loc>
+    <lastmod>2026-11-22</lastmod>
+  </sitemap>
 </sitemapindex>

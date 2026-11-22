@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de Péages & autoroutes (Francia).
+  // La route lleva /fr/peages* a este Worker.
+  "name": "ododex-peages",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/fr/peages*", "zone_name": "ododex.com" }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-peages",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
