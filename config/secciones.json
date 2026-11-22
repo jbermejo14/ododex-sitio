@@ -151,5 +151,13 @@
     "descripcion": "Calculez le coût officiel des péages d'autoroutes en France et découvrez les astuces pour payer moins cher.",
     "worker": "ododex-peages",
     "publicada": true
+  },
+  {
+    "ruta": "/fr/permis-points",
+    "proyecto": "../permis-points-fr",
+    "nombre": "Permis à points & stages",
+    "descripcion": "Simulez le retrait de points et vos amendes selon le Code de la route 2026 et trouvez un stage agréé en préfecture (+4 points).",
+    "worker": "ododex-permis-points",
+    "publicada": true
   }
 ]

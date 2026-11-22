@@ -68,4 +68,8 @@
     <loc>https://ododex.com/fr/peages/sitemap.xml</loc>
     <lastmod>2026-11-22</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://ododex.com/fr/permis-points/sitemap.xml</loc>
+    <lastmod>2026-11-22</lastmod>
+  </sitemap>
 </sitemapindex>
