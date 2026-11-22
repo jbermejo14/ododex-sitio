@@ -134,6 +134,6 @@
     "nombre": "Radars & amendes",
     "descripcion": "Calculez l'amende et les points retirés pour un excès de vitesse et trouvez les radars fixes de votre département.",
     "worker": "ododex-radars",
-    "publicada": false
+    "publicada": true
   }
 ]
