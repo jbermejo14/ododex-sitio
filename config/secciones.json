@@ -121,6 +121,14 @@
     "publicada": true
   },
   {
+    "ruta": "/fr/carte-grise",
+    "proyecto": "../carte-grise-fr",
+    "nombre": "Carte grise",
+    "descripcion": "Simulez le coût officiel de votre carte grise selon votre région, la puissance fiscale et l'âge de votre véhicule.",
+    "worker": "ododex-carte-grise",
+    "publicada": true
+  },
+  {
     "ruta": "/fr/radars",
     "proyecto": "../radars-fr",
     "nombre": "Radars & amendes",
