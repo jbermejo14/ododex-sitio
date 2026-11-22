@@ -135,5 +135,13 @@
     "descripcion": "Calculez l'amende et les points retirés pour un excès de vitesse et trouvez les radars fixes de votre département.",
     "worker": "ododex-radars",
     "publicada": true
+  },
+  {
+    "ruta": "/fr/controle-technique",
+    "proyecto": "../controle-technique-fr",
+    "nombre": "Contrôle technique",
+    "descripcion": "Calculez votre date d'échéance et comparez les tarifs officiels de plus de 6 100 centres agréés en France.",
+    "worker": "ododex-controle-technique",
+    "publicada": true
   }
 ]

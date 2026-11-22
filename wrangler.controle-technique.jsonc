@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Worker propio de Contrôle technique (Francia). Va aparte del Worker principal
+  // para permitir despliegues atómicos sin tocar el resto de la suite.
+  // La route lleva /fr/controle-technique* a este Worker.
+  "name": "ododex-controle-technique",
+  "compatibility_date": "2026-11-03",
+  "routes": [{ "pattern": "ododex.com/fr/controle-technique*", "zone_name": "ododex.com" }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-controle-technique",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
