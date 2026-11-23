@@ -287,6 +287,18 @@ describe("ensamblar", () => {
     assert.match(fs.readFileSync(path.join(dist, "index.html"), "utf8"), /href="\/es\/multas"/);
   });
 
+  test("sustituye el origen en páginas de la raíz que no son portada", () => {
+    const opciones = prepararBase();
+    escribir(
+      path.join(opciones.dirRaiz, "contacto.html"),
+      '<link rel="canonical" href="<!-- ORIGEN -->/contacto"><meta property="og:url" content="<!-- ORIGEN -->/contacto">',
+    );
+    ensamblar(opciones);
+    const html = fs.readFileSync(path.join(opciones.dist, "contacto.html"), "utf8");
+    assert.ok(!html.includes("<!-- ORIGEN -->"));
+    assert.equal(html.split(`${ORIGEN}/contacto`).length - 1, 2);
+  });
+
   test("aplana los __next.* de cada sección copiada", () => {
     const opciones = prepararBase();
     escribir(path.join(tmp, "multas", "out", "radares", "__next.radares", "$d$p", "__PAGE__.txt"), "p");

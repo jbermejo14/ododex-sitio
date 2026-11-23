@@ -33,6 +33,15 @@ describe("comprobarSalidaProduccion", () => {
     assert.deepEqual(comprobarSalidaProduccion(tmp, CLIENTE), { revisados: 3 });
   });
 
+  test("un marcador de plantilla sin sustituir lanza un error que nombra fichero y marcador", () => {
+    escribir("index.html", PAGINA_OK);
+    escribir("sobre-nosotros.html", `${SCRIPT}<link rel="canonical" href="<!-- ORIGEN -->/sobre-nosotros">`);
+    assert.throws(
+      () => comprobarSalidaProduccion(tmp, CLIENTE),
+      /sobre-nosotros\.html: marcador MARCADOR_ORIGEN sin sustituir/,
+    );
+  });
+
   test("una página sin script de AdSense lanza un error que nombra el fichero", () => {
     escribir("index.html", PAGINA_OK);
     escribir("fr/zfe/paris.html", "<html>sin script</html>");
