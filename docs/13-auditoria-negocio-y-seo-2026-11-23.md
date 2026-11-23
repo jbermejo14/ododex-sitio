@@ -6,6 +6,8 @@ Las cifras de demanda, competencia y RPM son **estimaciones** basadas en el sect
 
 ---
 
+> **Actualización del mismo día (23/11/2026):** resueltos y desplegados los P0 de AdSense y canonical de `/fr/zfe`, `/fr/carte-grise`, `/fr/controle-technique`, `/fr/peages`, `/fr/permis-points`, `/es/multas` e `/es/impuestos` (multas e impuestos fusionando la versión local con la de GitHub), y la canonical `<!-- ORIGEN -->` de « Sobre nosotros » y « Contacto ». La guardia de producción detecta ya salidas sin AdSense, con `localhost` o con marcadores sin sustituir. Sigue pendiente `/fr/radars` (§3.2).
+
 ## 1. Resumen ejecutivo
 
 1. **El mayor problema no es de SEO, es de proceso.** Se trabaja desde dos equipos y se despliega a mano. En producción había, a fecha de hoy:
