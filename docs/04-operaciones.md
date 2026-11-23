@@ -41,6 +41,8 @@ Si la sección va en el Worker principal (`/es/multas`, `/es/impuestos`), `--sol
 
 Para reensamblar sin recompilar (por ejemplo, tras cambiar la portada): `npm run build:sin-compilar`.
 
+El despliegue siempre debe pasar por `npm run build` y `npm run deploy`: no copies `out/` a mano. `ensamblar` y `deploy` rechazan salidas con `localhost` o páginas sin el script de AdSense.
+
 ### Refrescar datos de otras secciones
 
 | Sección | Comando en el proyecto | Frecuencia sugerida |

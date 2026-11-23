@@ -37,6 +37,9 @@ const ORIGEN = "https://ododex.com";
 const PLANTILLA_FR = "<!-- ADSENSE --><link href=\"<!-- ORIGEN -->/fr\"><main><!-- SECCIONES --></main>";
 const SECCION_FR = { ruta: "/fr/prix", proyecto: "prix", nombre: "Prix", descripcion: "Desc prix" };
 
+const CLIENTE_PRUEBA = "pub-1234567890123456";
+const SCRIPT_ADSENSE_PRUEBA = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"></script>`;
+
 let tmp;
 
 beforeEach(() => {
@@ -261,7 +264,12 @@ describe("ensamblar", () => {
   test("genera el árbol completo con dos secciones", () => {
     const opciones = prepararBase();
     escribir(path.join(opciones.dist, "viejo.txt"), "debe desaparecer");
-    const resumen = ensamblar({ ...opciones, clienteAdsense: "pub-1234567890123456" });
+    // Con cliente de AdSense, la guardia exige el script en cada página: las fixtures lo llevan.
+    escribir(path.join(opciones.dirRaiz, "index.html"), `<!-- ADSENSE -->${PLANTILLA}`);
+    for (const seccion of SECCIONES) {
+      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), `home ${seccion.proyecto}${SCRIPT_ADSENSE_PRUEBA}`);
+    }
+    const resumen = ensamblar({ ...opciones, clienteAdsense: CLIENTE_PRUEBA });
     const { dist } = opciones;
     assert.deepEqual(resumen, {
       workers: [{ worker: undefined, dir: dist, ficheros: 13 }],
@@ -674,11 +682,12 @@ describe("portadas por idioma y secciones sin publicar", () => {
 
   function prepararFrancia() {
     const dirRaiz = path.join(tmp, "raiz");
-    escribir(path.join(dirRaiz, "index.html"), PLANTILLA);
+    escribir(path.join(dirRaiz, "index.html"), `<!-- ADSENSE -->${PLANTILLA}`);
     escribir(path.join(dirRaiz, "fr", "index.html"), PLANTILLA_FR);
     escribir(path.join(dirRaiz, "fr", "404.html"), "<!-- ADSENSE -->404 fr");
     for (const seccion of TODAS) {
-      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), seccion.proyecto);
+      // La guardia de producción exige el script de AdSense en cada página con cliente.
+      escribir(path.join(tmp, seccion.proyecto, "out", "index.html"), `${seccion.proyecto}${SCRIPT_ADSENSE_PRUEBA}`);
     }
     return { secciones: TODAS, dirBase: tmp, dirRaiz, dist: path.join(tmp, "dist"), origen: ORIGEN, clienteAdsense: CLIENTE };
   }

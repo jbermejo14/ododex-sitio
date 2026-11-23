@@ -629,3 +629,12 @@ Textos (`texto`): « Puntos de recarga en {lugar} », « Gasolineras en {lugar} 
 
 - `tests/red.test.mjs`: `claveLugar` (artículos, orden, repetidas), `clavesCompatibles` (contención en ambos sentidos), `emparejar` (iguales, contención única, ambigüedad → sin pareja), `nombreLugar` (provincias de la tabla, artículo final), generación de `enlaces` con sitemaps de prueba en un directorio temporal (orden fijo, sin autoenlace, solo destinos existentes, ZBE opcional).
 - Ejecución real: `node scripts/generar-red.mjs` con los `dist*` actuales; informe de emparejados.
+
+## 11. Guardia de salida de producción (2026-11-23)
+
+Seis secciones francesas se desplegaron copiando `out/` a mano, sin `construir.mjs`: sus páginas no cargaban el script de AdSense y `/fr/zfe` publicó canonical, `og:url` y sitemap con `http://localhost:3000`.
+
+- `comprobarSalidaProduccion(dirSeccion, clienteAdsense)` (`lib/ensamblado.mjs`) recorre la carpeta fichero a fichero (sin cargarla entera en memoria) y lanza `Error` si algún `.html`, `.xml` o `.txt` contiene `http://localhost`, `http://127.0.0.1` o `http://0.0.0.0`, o si, con `clienteAdsense` no vacío, una página `.html` que no sea de error (`404.html`, `_not-found`) no incluye `adsbygoogle.js?client=ca-pub-…`. El mensaje da el total, hasta 5 rutas y cómo corregirlo. Devuelve `{ revisados }`.
+- Se llama en `ensamblar` para cada carpeta de Worker (junto a `comprobarLimitesPages`) y en `desplegar.mjs` (`exigirPreparado`, con el cliente de `config/produccion.json`), de modo que también se frena un despliegue de una salida copiada a mano.
+- `construir.mjs` pasa además `NEXT_PUBLIC_SITE_ORIGIN` a cada compilación: cuatro proyectos franceses leen esa variable en lugar de `NEXT_PUBLIC_SITE_URL`.
+- Aceptación: `tests/salida-produccion.test.mjs` (salida correcta, página sin script, localhost en sitemap, páginas de error exentas, cliente vacío, límite de 5 ejemplos).

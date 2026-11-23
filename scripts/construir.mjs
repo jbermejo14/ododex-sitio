@@ -22,6 +22,8 @@ function compilarSeccion(seccion, origen, clienteAdsense, unidadAdsense) {
     env: {
       ...process.env,
       NEXT_PUBLIC_SITE_URL: origen,
+      // Cuatro proyectos franceses leen esta variable en lugar de NEXT_PUBLIC_SITE_URL; sin ella caen a localhost.
+      NEXT_PUBLIC_SITE_ORIGIN: origen,
       NEXT_PUBLIC_ADSENSE_CLIENT: clienteAdsense,
       NEXT_PUBLIC_ADSENSE_SLOT: unidadAdsense,
       ...entornoRedEnlaces(),

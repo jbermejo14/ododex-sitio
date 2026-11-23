@@ -100,19 +100,14 @@ Documentación técnica y operativa completa del despliegue del ecosistema **Odo
 
 ## 🛠️ Procedimiento de Despliegue en Cloudflare
 
-Cada servicio dispone de su propio archivo de configuración `wrangler.<servicio>.jsonc` en el repositorio raíz `ododex-sitio`:
+Cada servicio dispone de su propio archivo de configuración `wrangler.<servicio>.jsonc` en el repositorio raíz `ododex-sitio`. Se compila y despliega **siempre** desde `ododex-sitio`:
 
 ```bash
-# 1. Compilar la sección en su directorio
-cd ../<nombre-proyecto>
-npm run build
-
-# 2. Ensamblar en ododex-sitio
-cd ../ododex-sitio
-rm -rf dist-<nombre> && mkdir -p dist-<nombre>/fr/<nombre>
-cp -R ../<nombre-proyecto>/out/* dist-<nombre>/fr/<nombre>/
-cp ../<nombre-proyecto>/out/index.html dist-<nombre>/fr/<nombre>.html
-
-# 3. Desplegar el Worker en Cloudflare
-npx wrangler deploy --config wrangler.<nombre>.jsonc
+cd ododex-sitio
+npm run build -- --solo /fr/<servicio>
+npm run deploy -- --solo /fr/<servicio>
 ```
+
+`construir.mjs` compila cada web con las variables de producción (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SITE_ORIGIN`, `NEXT_PUBLIC_ADSENSE_CLIENT`, `NEXT_PUBLIC_ADSENSE_SLOT`). **No copiar `out/` a mano ni lanzar `wrangler deploy` directamente**: el 23/11/2026 se comprobó que así seis webs francesas habían salido sin AdSense y `/fr/zfe` con canonical, `og:url` y sitemap en `http://localhost:3000`. Desde entonces el ensamblado y el despliegue comprueban la salida y se niegan a publicarla si pasa algo así.
+
+En Git Bash hay que anteponer `MSYS_NO_PATHCONV=1` para que `--solo /fr/...` no se convierta en una ruta de Windows.
