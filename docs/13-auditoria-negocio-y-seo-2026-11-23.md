@@ -6,7 +6,26 @@ Las cifras de demanda, competencia y RPM son **estimaciones** basadas en el sect
 
 ---
 
-> **Actualización del mismo día (23/11/2026):** resueltos y desplegados los P0 de AdSense y canonical de `/fr/zfe`, `/fr/carte-grise`, `/fr/controle-technique`, `/fr/peages`, `/fr/permis-points`, `/es/multas` e `/es/impuestos` (multas e impuestos fusionando la versión local con la de GitHub), y la canonical `<!-- ORIGEN -->` de « Sobre nosotros » y « Contacto ». La guardia de producción detecta ya salidas sin AdSense, con `localhost` o con marcadores sin sustituir. También `/fr/radars` (§3.2): délit ≥ 50 km/h, sin « officiel », con AdSense. Pendiente: « officiel » en `/fr/permis-points` y `/fr/carte-grise` y la fila ≥ 50 km/h de permis-points.
+> **Actualización del mismo día (23/11/2026):** resueltos y desplegados los P0 de AdSense y canonical de `/fr/zfe`, `/fr/carte-grise`, `/fr/controle-technique`, `/fr/peages`, `/fr/permis-points`, `/es/multas` e `/es/impuestos` (multas e impuestos fusionando la versión local con la de GitHub), y la canonical `<!-- ORIGEN -->` de « Sobre nosotros » y « Contacto ». La guardia de producción detecta ya salidas sin AdSense, con `localhost` o con marcadores sin sustituir. También `/fr/radars` (§3.2): délit ≥ 50 km/h, sin « officiel », con AdSense.
+
+## Estado (25/11/2026)
+
+| Punto | Estado |
+|---|---|
+| §3.1 y §3.2: P0 de multas, impuestos, radars y AdSense/`localhost` en Francia | Resuelto y desplegado (23/11) |
+| §3.3 Guardia de producción | Hecha: falla con páginas sin AdSense, con `localhost` o con marcadores de plantilla sin sustituir |
+| §3.3 GitHub Actions | Pendiente |
+| §3.3 Una rama por repo | Pendiente en `multas-dgt` (su `main` de GitHub está atrasado; la versión buena está en `fix/seo-legal-audit`) |
+| §7.3 en las 6 webs francesas nuevas: títulos ≤ 65 (casi todos ≤ 60) en francés y con artículos de departamento, descripciones 120-160, imagen OG en todas las páginas, sin « officiel » referido a la web, openGraph propio en las páginas legales, descripciones de autopista redactadas a mano | Resuelto y desplegado (25/11) |
+| §7.5 Reglas legales con pruebas en radars y permis-points: délit ≥ 50 km/h, excesos < 20 km/h según el límite (no el tipo de vía), 20-49 km/h con recuperación de 3 años | Resuelto y desplegado (25/11) |
+| §7.1 Analítica (Cloudflare Web Analytics), Bing Webmaster | Pendiente (titular, en los paneles) |
+| §7.1 Search Console | Verificación DNS presente; datos en espera |
+| §4 Afiliación | Pendiente (alta del titular) |
+| §7.2 Enlaces entre webs francesas por departamento | Pendiente |
+| §7.3 Imagen OG y títulos en las webs españolas (salvo multas e impuestos) y en las páginas internas de prix-carburants | Pendiente |
+| §7.4 Poda | A los 90 días de datos de Search Console |
+| §7.5 Fecha de « última revisión legal » visible | Pendiente |
+| §5 Ampliaciones y §6 países | Pendiente |
 
 ## 1. Resumen ejecutivo
 
