@@ -22,7 +22,9 @@ Las cifras de demanda, competencia y RPM son **estimaciones** basadas en el sect
 | §7.1 Search Console | Verificación DNS presente; datos en espera |
 | §4 Afiliación | Pendiente (alta del titular) |
 | §7.2 Enlaces entre webs francesas por departamento | Pendiente |
-| §7.3 Imagen OG y títulos en las webs españolas (salvo multas e impuestos) y en las páginas internas de prix-carburants | Pendiente |
+| §7.3 Imagen OG en las webs españolas y prix-carburants | Desplegado (25/11) en las portadas de gasolineras, ZBE, llamadas a revisión, /en/recalls, eléctrico vs gasolina y ZaraBus (cambios hechos en GitHub el 21-22/11 y fusionados con los enlaces de red), en todas las páginas de ITV y prix-carburants. Pendiente: páginas internas de gasolineras, ZBE y las que redefinen openGraph sin imagen; puntos de recarga (no compila: memoria) |
+| §7.3 Títulos > 60 y descripciones > 160 en gasolineras, llamadas a revisión, /en/recalls y ZBE (miles de páginas) | Pendiente |
+| es-itv en GitHub | Pendiente: el repo no tiene remoto |
 | §7.4 Poda | A los 90 días de datos de Search Console |
 | §7.5 Fecha de « última revisión legal » visible | Pendiente |
 | §5 Ampliaciones y §6 países | Pendiente |
