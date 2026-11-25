@@ -22,7 +22,7 @@ Las cifras de demanda, competencia y RPM son **estimaciones** basadas en el sect
 | §7.1 Search Console | Verificación DNS presente; datos en espera |
 | §4 Afiliación | Pendiente (alta del titular) |
 | §7.2 Enlaces entre webs francesas por departamento | Pendiente |
-| §7.3 Imagen OG, títulos ≤ 65 y descripciones 120-160 en las webs españolas y prix-carburants | Resuelto y desplegado (25/11) en gasolineras, llamadas a revisión, /en/recalls, ZBE, eléctrico vs gasolina, ITV, ZaraBus y prix-carburants, con pruebas que recorren todas las páginas. Pendiente: puntos de recarga (no compila en la carpeta del proyecto; sospecha: caché .next) y el título inglés de /en/recalls (« Vehicle Recall Campaigns Consultant ») |
+| §7.3 Imagen OG, títulos ≤ 65 y descripciones 120-160 en las webs españolas y prix-carburants | Resuelto y desplegado (25/11) en gasolineras, llamadas a revisión, /en/recalls, ZBE, eléctrico vs gasolina, ITV, ZaraBus y prix-carburants, con pruebas que recorren todas las páginas. Puntos de recarga también (25/11; no compilaba por una caché .next vieja), sin el horario 24/7 que se inventaba en 12 000 fichas. Títulos de portada de revisiones corregidos (« Llamadas a revisión de vehículos », « Vehicle recall checker »). §7.3 completo en toda la red |
 | es-itv en GitHub | Pendiente: el repo no tiene remoto |
 | §7.4 Poda | A los 90 días de datos de Search Console |
 | §7.5 Fecha de « última revisión legal » visible | Pendiente |
