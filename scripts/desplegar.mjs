@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { comprobarSalidaProduccion, dirSalidaDeWorker, leerOpcionSolo, leerProduccion, leerSecciones, sufijoDeWorker } from "../lib/ensamblado.mjs";
+import { comprobarSalidaProduccion, dirSalidaDeWorker, leerOpcionSolo, leerProduccion, leerSecciones, rutasSinAnuncios, sufijoDeWorker } from "../lib/ensamblado.mjs";
 
 const DIR_BASE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CONFIG_WRANGLER_PRINCIPAL = "wrangler.jsonc";
@@ -25,7 +25,7 @@ function workersAfectados(secciones, solo) {
   return [objetivo.worker];
 }
 
-function exigirPreparado(worker, clienteAdsense) {
+function exigirPreparado(worker, clienteAdsense, secciones) {
   const config = path.join(DIR_BASE, ficheroWrangler(worker));
   if (!fs.existsSync(config)) {
     throw new Error(`Falta ${config}. Crea la configuración de wrangler del Worker ${worker ?? NOMBRE_WORKER_PRINCIPAL}.`);
@@ -35,7 +35,7 @@ function exigirPreparado(worker, clienteAdsense) {
     throw new Error(`No existe ${salida}. Ejecuta npm run build antes de desplegar.`);
   }
   // Frena también salidas copiadas a mano sin pasar por construir.mjs.
-  comprobarSalidaProduccion(salida, clienteAdsense);
+  comprobarSalidaProduccion(salida, clienteAdsense, rutasSinAnuncios(secciones.filter((s) => s.worker === worker)));
 }
 
 // Los datos del comando salen de nombres validados por leerSecciones, no de entrada externa.
@@ -54,7 +54,7 @@ function desplegar() {
   const secciones = leerSecciones(path.join(DIR_BASE, "config", "secciones.json"));
   const workers = workersAfectados(secciones, leerOpcionSolo(process.argv));
   const { clienteAdsense } = leerProduccion(path.join(DIR_BASE, "config", "produccion.json"));
-  workers.forEach((worker) => exigirPreparado(worker, clienteAdsense));
+  workers.forEach((worker) => exigirPreparado(worker, clienteAdsense, secciones));
   workers.forEach(desplegarWorker);
 }
 

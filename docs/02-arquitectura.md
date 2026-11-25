@@ -110,6 +110,7 @@ ododex-sitio/
 | `scriptBuild` | no | Script de npm a ejecutar si no es `build` (ej. `build:es`). |
 | `enPortada` | no | `false` para no mostrarla en la portada de su idioma (recalls en inglés). |
 | `publicada` | no | `false` mientras la web no esté publicada: se ensambla, pero no sale en portadas ni en `robots.txt` (hoy `/fr/zfe` y `/fr/radars`). |
+| `anuncios` | no | `false` si la sección no lleva anuncios (hoy `/es/zaragoza-bus`): la guardia de salida no le exige el script de AdSense, pero sigue vigilando `localhost` y marcadores sin sustituir. Por defecto `true`. |
 
 ### `config/produccion.json`
 

@@ -55,7 +55,8 @@
     "proyecto": "../zarabus",
     "nombre": "Autobús de Zaragoza",
     "descripcion": "Cuándo llega el próximo autobús urbano de Zaragoza a tu parada: busca por número de poste o por calle, con mapa.",
-    "worker": "ododex-zaragoza-bus"
+    "worker": "ododex-zaragoza-bus",
+    "anuncios": false
   },
   {
     "ruta": "/es/puntos-recarga",
@@ -66,7 +67,10 @@
     "paginasSoloHtml": [
       "punto/*",
       "provincia/*/*"
-    ]
+    ],
+    "entorno": {
+      "NODE_OPTIONS": "--max-old-space-size=6144"
+    }
   },
   {
     "ruta": "/es/llamadas-revision",

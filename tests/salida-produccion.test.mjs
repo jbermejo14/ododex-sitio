@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { comprobarSalidaProduccion } from "../lib/ensamblado.mjs";
+import { comprobarSalidaProduccion, rutasSinAnuncios } from "../lib/ensamblado.mjs";
 
 const CLIENTE = "pub-1234567890123456";
 const SCRIPT = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234567890123456"></script>`;
@@ -86,6 +86,31 @@ describe("comprobarSalidaProduccion", () => {
     assert.throws(
       () => comprobarSalidaProduccion(tmp, CLIENTE),
       (error) => /8 fichero/.test(error.message) && (error.message.match(/\.html:/g) ?? []).length === 5 && /y 3 más/.test(error.message),
+    );
+  });
+
+  test("rutasSinAnuncios devuelve solo las secciones con anuncios: false", () => {
+    const secciones = [{ ruta: "/es/a" }, { ruta: "/es/b", anuncios: false }, { ruta: "/es/c", anuncios: true }];
+    assert.deepEqual(rutasSinAnuncios(secciones), ["/es/b"]);
+  });
+
+  test("una sección exenta no necesita script de AdSense (carpeta y <ruta>.html), el resto sí", () => {
+    escribir("index.html", PAGINA_OK);
+    escribir("es/bus/index.html", "<html>sin anuncios</html>");
+    escribir("es/bus/linea/1.html", "<html>sin anuncios</html>");
+    escribir("es/bus.html", "<html>sin anuncios</html>");
+    assert.equal(comprobarSalidaProduccion(tmp, CLIENTE, ["/es/bus"]).revisados, 4);
+    escribir("es/bus2/index.html", "<html>sin script</html>");
+    assert.throws(() => comprobarSalidaProduccion(tmp, CLIENTE, ["/es/bus"]), /es\/bus2\/index\.html/);
+  });
+
+  test("una sección exenta sigue fallando con localhost o marcadores sin sustituir", () => {
+    escribir("es/bus/index.html", "<html>ok</html>");
+    escribir("es/bus/a.html", '<link href="http://localhost:3000/es/bus">');
+    escribir("es/bus/b.html", "<!-- ORIGEN -->");
+    assert.throws(
+      () => comprobarSalidaProduccion(tmp, CLIENTE, ["/es/bus"]),
+      (error) => /a\.html: contiene un origen/.test(error.message) && /b\.html: marcador MARCADOR_ORIGEN/.test(error.message),
     );
   });
 

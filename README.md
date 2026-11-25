@@ -98,6 +98,7 @@ El origen, el cliente y la unidad de AdSense por defecto están en `config/produ
 - `scriptBuild`: script de npm que compila la sección (por defecto `build`; aquí `build:es` y `build:en`).
 - `enPortada`: con `false`, la sección no sale en la portada de su idioma, pero su sitemap sí está en `robots.txt`.
 - `publicada`: con `false`, la sección se compila y ensambla, pero no sale en ninguna portada ni en `robots.txt` (para webs aún sin publicar, como `/fr/zfe`).
+- `anuncios`: booleano, por defecto `true`. Con `false`, la sección no lleva anuncios (decisión editorial, como `/es/zaragoza-bus`) y la guardia de producción no exige en sus páginas el script de AdSense; sigue rechazando `localhost` y marcadores sin sustituir.
 - Portadas por idioma: `/` lista las secciones `/es/…` y `/fr` las `/fr/…` (plantillas `raiz/index.html` y `raiz/fr/index.html`; ver la sección 9 de `ARCHITECTURE.md`).
 
 Antes de ensamblar hay que compilar `../recalls-web` (`npm run build` de este proyecto lo hace). Si falta una carpeta de exportación, el error dice qué sección y qué comando.

@@ -723,6 +723,13 @@ describe("portadas por idioma y secciones sin publicar", () => {
     assert.ok(!robots.includes("/fr/zfe"));
   });
 
+  test("leerSecciones acepta anuncios booleano y rechaza otros valores", () => {
+    const base = SECCIONES[0];
+    assert.equal(leerSecciones(escribirConfig([{ ...base, anuncios: false }]))[0].anuncios, false);
+    assert.equal(leerSecciones(escribirConfig([base]))[0].anuncios, undefined);
+    assert.throws(() => leerSecciones(escribirConfig([{ ...base, anuncios: "no" }])), /"anuncios" debe ser true o false/);
+  });
+
   test("leerSecciones rechaza publicada que no es booleano", () => {
     const base = { ruta: "/fr/x", proyecto: "x", nombre: "X", descripcion: "D" };
     assert.throws(() => leerSecciones(escribirConfig([{ ...base, publicada: "no" }])), /publicada/);
